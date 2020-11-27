@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.goldwater.querycenter.dao.rtuex.RtuStationDao">
+    <resultMap id="result_rtustation" type="com.goldwater.querycenter.entity.ruku.RtuStation">
+        <result property="stcd" column="STCD"/>
+        <result property="stcd8" column="STCD8"/>
+        <result property="stnm" column="STNM"/>
+        <result property="sttp" column="STTP"/>
+        <result property="rvnm" column="RVNM"/>
+        <result property="protocol" column="PROTOCOL"/>
+        <result property="sendTime" column="SENDTIME"/>
+        <result property="recvTime" column="RECVTIME"/>
+        <result property="funcCode" column="FUNCCODE"/>
+    </resultMap>
+
+    <resultMap id="result_stationmessage" type="com.goldwater.querycenter.entity.ruku.vo.StationMessageVo">
+        <result property="stcd" column="STCD"/>
+        <result property="stcd8" column="STCD8"/>
+        <result property="stnm" column="STNM"/>
+        <result property="sttp" column="STTP"/>
+        <result property="rvnm" column="RVNM"/>
+        <result property="protocol" column="PROTOCOL"/>
+        <result property="sendTime" column="SENDTIME"/>
+        <result property="recvTime" column="RECVTIME"/>
+        <result property="funcCode" column="FUNCCODE"/>
+    </resultMap>
+
+    <select id="queryStcdStnm" resultMap="result_rtustation">
+        SELECT STCD8 STCD, STNM, STTP FROM RTU_STATION
+        WHERE STCD8 = #{stcd8}
+    </select>
+
+    <select id="selectTop1StationMessage" resultMap="result_stationmessage">
+        SELECT top 1 S.STCD,S.STCD8,S.STNM,S.STTP,S.RVNM,S.PROTOCOL,M.SENDTIME,M.RECVTIME,M.FUNCCODE
+        FROM RTUEX.dbo.RTU_STATION S
+        LEFT JOIN RTUEX.dbo.RTU_MESSAGE M ON S.STCD = M.STCD
+        WHERE S.STCD8 = #{stcd8} AND M.SENDTIME = #{sendTime}
+        AND M.SENDTIME IS NOT NULL AND M.RECVTIME IS NOT NULL
+    </select>
+</mapper>

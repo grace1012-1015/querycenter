@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.goldwater.querycenter.dao.ycdb.ruku.YcdbRelationDao">
+    <resultMap id="result_zqrl" type="com.goldwater.querycenter.entity.ruku.vo.ZqrlRelationVo">
+        <result property="stcd" column="STCD"/>
+        <result property="stnm" column="STNM"/>
+        <result property="ptno" column="PTNO"/>
+        <result property="z" column="Z"/>
+        <result property="q" column="Q"/>
+    </resultMap>
+
+    <resultMap id="result_zvarl" type="com.goldwater.querycenter.entity.ruku.vo.ZvarlRelationVo">
+        <result property="stcd" column="STCD"/>
+        <result property="stnm" column="STNM"/>
+        <result property="ptno" column="PTNO"/>
+        <result property="rz" column="RZ"/>
+        <result property="w" column="W"/>
+    </resultMap>
+
+    <select id="queryZqrlList_Level3" resultMap="result_zqrl">
+        SELECT R.STCD,S.STNM ,R.PTNO,R.Z,R.Q
+        FROM ST_ZQRL_B R LEFT JOIN ST_PRIVILEGE_STCDS P ON P.STCD=R.STCD
+        LEFT JOIN (SELECT STCD ,MAX(STNM) STNM FROM  ST_STCONFIG GROUP BY STCD ) S ON R.STCD=S.STCD
+        WHERE R.STCD &lt;&gt; ''
+        AND P.PRIVILEGE_ID = #{priviligeId}
+        <if test="stcd!=null and stcd!=''">
+            AND R.STCD = #{stcd}
+        </if>
+    </select>
+
+    <select id="queryZqrlList" resultMap="result_zqrl">
+        SELECT R.STCD,S.STNM ,R.PTNO,R.Z,R.Q
+        FROM ST_ZQRL_B R LEFT JOIN (SELECT STCD ,MAX(STNM) STNM FROM  ST_STCONFIG GROUP BY STCD ) S ON R.STCD=S.STCD
+        WHERE R.STCD &lt;&gt; ''
+        <if test="stcd!=null and stcd!=''">
+            AND R.STCD = #{stcd}
+        </if>
+    </select>
+
+    <select id="getZqrl" resultMap="result_zqrl">
+        SELECT R.STCD,R.PTNO,R.Z,R.Q
+        FROM ST_ZQRL_B R
+        WHERE R.STCD = #{stcd} AND R.PTNO = #{ptno}
+    </select>
+
+    <delete id="deleteZqrl">
+        BEGIN
+        <foreach collection="list" item="item" separator=";">
+            DELETE FROM ST_ZQRL_B
+            WHERE stcd = #{item.stcd} ptno = #{item.ptno}
+        </foreach>
+        ;END;
+    </delete>
+
+    <select id="getZvarlList_Level3" resultMap="result_zvarl">
+        SELECT R.STCD,S.STNM ,R.PTNO,R.RZ,R.W
+        FROM ST_ZVARL_B R ST_PRIVILEGE_STCDS P ON P.STCD=R.STCD
+        LEFT JOIN (SELECT STCD8 ,MAX(STNM) STNM FROM RTUEX.DBO.RTU_STATION GROUP BY STCD8 ) S on R.STCD=S.STCD8
+        WHERE P.PRIVILEGE_ID = #{priviligeId}
+        <if test="stcd!=null and stcd!=''">
+            AND R.STCD = #{stcd}
+        </if>
+    </select>
+
+    <select id="getZvarlList" resultMap="result_zvarl">
+        SELECT R.STCD,S.STNM ,R.PTNO,R.RZ,R.W
+        FROM ST_ZVARL_B R LEFT JOIN (SELECT STCD ,MAX(STNM) STNM FROM  ST_STCONFIG GROUP BY STCD ) S ON R.STCD=S.STCD
+        WHERE 1=1
+        <if test="stcd!=null and stcd!=''">
+            AND R.STCD = #{stcd}
+        </if>
+    </select>
+
+    <select id="getZvarl" resultMap="result_zvarl">
+        SELECT R.STCD,S.STNM ,R.PTNO,R.RZ,R.W
+        FROM ST_ZVARL_B R
+        WHERE R.STCD = #{stcd} AND R.PTNO = #{ptno}
+    </select>
+</mapper>
