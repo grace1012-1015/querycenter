@@ -5,11 +5,15 @@ import com.github.pagehelper.PageInfo;
 import com.goldwater.querycenter.common.util.Result;
 import com.goldwater.querycenter.common.util.cache.SessionCache;
 import com.goldwater.querycenter.common.util.string.StringUtil;
+import com.goldwater.querycenter.dao.rtuex.RtuStationDao;
 import com.goldwater.querycenter.dao.rw.ruku.RwRelationDao;
 import com.goldwater.querycenter.dao.ycdb.management.RightDao;
+import com.goldwater.querycenter.dao.ycdb.ruku.CosstDao;
 import com.goldwater.querycenter.dao.ycdb.ruku.YcdbRelationDao;
 import com.goldwater.querycenter.entity.management.Priviliges;
 import com.goldwater.querycenter.entity.management.User;
+import com.goldwater.querycenter.entity.ruku.Cosst;
+import com.goldwater.querycenter.entity.ruku.RtuStation;
 import com.goldwater.querycenter.entity.ruku.vo.ZqrlRelationVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZvarlRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,13 @@ public class RelationService {
     private RwRelationDao rwRelationDao;
 
     @Autowired
+    private CosstDao cosstDao;
+
+    @Autowired
     private RightDao rightDao;
+
+    @Autowired
+    private RtuStationDao rtuStationDao;
 
     public Result queryZqrlList(String stcd, int pageIndex, int length){
         Result rs = new Result();
@@ -229,6 +239,134 @@ public class RelationService {
                 rs.setMsg("删除水位库容关系失败！");
             }
         }
+
+        return rs;
+    }
+
+    public Result addCosst(String id, String stcd, String stnm, String arnm, String  ordr){
+        Result rs = new Result();
+
+        try {
+            Cosst cosst = new Cosst();
+
+            if (!StringUtil.isBlank(id)) {
+                cosst.setId(id);
+            }
+            if (!StringUtil.isBlank(stcd)) {
+                cosst.setStcd(stcd);
+            }
+            if (!StringUtil.isBlank(stnm)) {
+                cosst.setStnm(stnm);
+            }
+            if (!StringUtil.isBlank(arnm)) {
+                cosst.setArnm(arnm);
+            }
+
+            // 顺序号不为空时说明是更新数据
+            if (!StringUtil.isBlank(ordr)) {
+                cosst.setOrdr(ordr);
+
+                cosstDao.updateCosst(id, stcd, stnm, arnm, ordr);
+            } else {
+                String ptnosql = cosstDao.getMaxOrdr(stcd, id);
+
+                if (null == ptnosql || "".equals(ordr)) {
+                    ptnosql = "1";
+                } else {
+                    ptnosql = String.valueOf(Integer.valueOf(ptnosql) + 1);
+                }
+
+                cosst.setOrdr(ptnosql);
+
+                cosstDao.insertSelective(cosst);
+            }
+
+            rs.setCode(Result.SUCCESS);
+        }
+        catch(Exception ex)
+        {
+            rs.setMsg("新增测站和分类失败！");
+            rs.setCode(Result.FAILURE);
+        }
+
+        return rs;
+    }
+
+    public Result getCosst(String stcd, String id){
+        Result rs = new Result();
+
+        Cosst c = new Cosst();
+
+        c.setId(id);
+        c.setStcd(stcd);
+
+        rs.setCode(Result.SUCCESS);
+        rs.setData(cosstDao.selectOne(c));
+
+        return rs;
+    }
+
+    public Result deleteCosst(String stcd_id) {
+        Result rs = new Result();
+
+        if (!StringUtil.isBlank(stcd_id)) {
+            List<Map> list = new ArrayList<>();
+            String[] stcd_ptnoarr = stcd_id.split(";");
+
+            for (int i = 0; i < stcd_ptnoarr.length; i++) {
+                String[] stcdarr = stcd_ptnoarr[i].split(",");
+                Map m = new HashMap();
+
+                m.put("stcd", stcdarr[0]);
+                m.put("id", stcdarr[1]);
+
+                list.add(m);
+            }
+
+            cosstDao.deleteCosst(list);
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            rs.setMsg("删除测站和分类失败！");
+            rs.setCode(Result.FAILURE);
+        }
+
+        return rs;
+    }
+
+
+    public Result checkZqrl(String stcd, String yr, String ptno){
+        Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
+
+        ZqrlRelationVo zqrl = ycdbRelationDao.getZqrl(stcd, ptno, yr);
+
+        if (zqrl != null){
+            map.put("STATUS", false);
+        }
+        else {
+            map.put("STATUS", true);
+        }
+
+        rs.setData(map);
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result getStationList(String stcd, String protocol, String sttp, int pageIndex, int length){
+        Result rs = new Result();
+        List<RtuStation> list = new ArrayList<>();
+
+        PageHelper.startPage(pageIndex, length);
+
+        list = rtuStationDao.getStationList(stcd, protocol, sttp);
+
+        PageInfo p = new PageInfo<>(list);
+
+        rs.setData(p);
+        rs.setTotal(Integer.parseInt(p.getTotal() + ""));
+        rs.setCode(Result.SUCCESS);
 
         return rs;
     }

@@ -103,4 +103,61 @@ public class RelationController {
     public Result deleteZvarl(@RequestParam(name = "STCD_PTNO", defaultValue = "") String stcd_ptno){
         return relationService.deleteZvarl(stcd_ptno);
     }
+
+    /**
+     * 添加测站和分类关系信息
+     */
+    @PostMapping("/addCosst")
+    @ResponseBody
+    public Result addCosst(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                           @RequestParam(name = "STNM", defaultValue = "") String stnm,
+                           @RequestParam(name = "ARNM", defaultValue = "") String arnm,
+                           @RequestParam(name = "ORDR", defaultValue = "") String ordr,
+                           @RequestParam(name = "ID", defaultValue = "") String id){
+        return relationService.addCosst(id, stcd, stnm, arnm, ordr);
+    }
+
+    /**
+     * 单条测站和分类关系数据查询
+     */
+    @PostMapping("/getCosst")
+    @ResponseBody
+    public Result getCosst(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                           @RequestParam(name = "ID", defaultValue = "") String id){
+        return relationService.getCosst(stcd, id);
+    }
+
+    /**
+     * 删除测站和分类关系信息
+     */
+    @PostMapping("/deleteCosst")
+    @ResponseBody
+    public Result deleteCosst(@RequestParam(name = "STCD_ID", defaultValue = "") String stcd_id){
+        return relationService.deleteCosst(stcd_id);
+    }
+
+    /**
+     * 检查新增水位流量关系数据是否存在
+     */
+    @PostMapping("/checkZqrl")
+    @ResponseBody
+    public Result checkZqrl(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                            @RequestParam(name = "yr", defaultValue = "") String yr,
+                            @RequestParam(name = "ptno", defaultValue = "") String ptno){
+        return relationService.checkZqrl(stcd, yr, ptno);
+    }
+
+    /**
+     * 测站配置表的维护
+     *
+     */
+    @PostMapping("/getStationList")
+    @ResponseBody
+    public Result getStationList(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                                 @RequestParam(name = "protocol", defaultValue = "") String protocol,
+                                 @RequestParam(name = "sttp", defaultValue = "") String sttp,
+                                 @RequestParam(name = "page", defaultValue = "1") int pageIndex,
+                                 @RequestParam(name = "limit", defaultValue = "10") int length){
+        return relationService.getStationList(stcd, protocol, sttp, pageIndex, length);
+    }
 }

@@ -44,7 +44,16 @@
     <select id="getZqrl" resultMap="result_zqrl">
         SELECT R.STCD,R.PTNO,R.Z,R.Q
         FROM ST_ZQRL_B R
-        WHERE R.STCD = #{stcd} AND R.PTNO = #{ptno}
+        WHERE (1 = 1)
+        <if test="stcd!=null and stcd!=''">
+            AND R.STCD = #{stcd}
+        </if>
+        <if test="ptno!=null and ptno!=''">
+          AND R.PTNO = #{ptno}
+        </if>
+        <if test="yr!=null and yr!=''">
+            AND datediff(DAY, #{yr} + R.TM) = 0
+        </if>
     </select>
 
     <delete id="deleteZqrl">

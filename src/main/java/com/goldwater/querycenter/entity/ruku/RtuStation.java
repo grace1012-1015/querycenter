@@ -25,4 +25,43 @@ public class RtuStation {
 
     @Column(name = "PROTOCOL")
     private String protocol;
+
+    @Column(name = "RTUCD")
+    private String rtucd;
+
+    @Column(name = "CTCD")
+    private String ctcd;
+
+    @Column(name = "BSNM")
+    private String bsnm;
+
+    @Column(name = "HNNM")
+    private String hnnm;
+
+    @Column(name = "DTMEL")
+    private String dtmel;
+
+    @Column(name = "ACCURATY")
+    private String accuraty;
+
+    @Column(name = "RIVER_WARN_LOW")
+    private String river_warn_low;
+
+    @Column(name = "RIVER_WARN_HIGH")
+    private String river_warn_high;
+
+    @Column(name = "RAIN_WARN_MINUTE")
+    private String river_warn_minute;
+
+    @Column(name = "TELPHONE")
+    private String telephone;
+
+    @Column(name = "FLAG_HD")
+    private String flag_hd;
+
+    @Column(name = "CENTER")
+    private String center;
+
+    @Column(name = "BORROW")
+    private String borrow;
 }

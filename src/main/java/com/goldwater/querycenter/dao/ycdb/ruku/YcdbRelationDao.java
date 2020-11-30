@@ -13,7 +13,7 @@ public interface YcdbRelationDao {
 
     List<ZqrlRelationVo> queryZqrlList(@Param("stcd") String stcd);
 
-    ZqrlRelationVo getZqrl(@Param("stcd") String stcd, @Param("ptno") String ptno);
+    ZqrlRelationVo getZqrl(@Param("stcd") String stcd, @Param("ptno") String ptno, @Param("yr") String yr);
 
     int deleteZqrl(@Param("list") List<Map> list);
 

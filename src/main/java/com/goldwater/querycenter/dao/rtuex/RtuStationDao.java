@@ -10,4 +10,6 @@ public interface RtuStationDao {
     List<RtuStation> queryStcdStnm(@Param("stcd8") String stcd8);
 
     StationMessageVo selectTop1StationMessage(@Param("stcd8") String stcd8, @Param("sendTime") String sendTime);
+
+    List<RtuStation> getStationList(@Param("stcd") String stcd, @Param("protocol") String protocol, @Param("sttp") String sttp);
 }

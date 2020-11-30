@@ -12,9 +12,19 @@
         <result property="sttp" column="STTP"/>
         <result property="rvnm" column="RVNM"/>
         <result property="protocol" column="PROTOCOL"/>
-        <result property="sendTime" column="SENDTIME"/>
-        <result property="recvTime" column="RECVTIME"/>
-        <result property="funcCode" column="FUNCCODE"/>
+        <result property="rtucd" column="RTUCD"/>
+        <result property="ctcd" column="CTCD"/>
+        <result property="bsnm" column="BSNM"/>
+        <result property="hnnm" column="HNNM"/>
+        <result property="dtmel" column="DTMEL"/>
+        <result property="accuraty" column="ACCURATY"/>
+        <result property="river_warn_low" column="RIVER_WARN_LOW"/>
+        <result property="river_warn_high" column="RIVER_WARN_HIGH"/>
+        <result property="river_warn_minute" column="RAIN_WARN_MINUTE"/>
+        <result property="telephone" column="TELPHONE"/>
+        <result property="flag_hd" column="FLAG_HD"/>
+        <result property="center" column="CENTER"/>
+        <result property="borrow" column="BORROW"/>
     </resultMap>
 
     <resultMap id="result_stationmessage" type="com.goldwater.querycenter.entity.ruku.vo.StationMessageVo">
@@ -41,4 +51,20 @@
         WHERE S.STCD8 = #{stcd8} AND M.SENDTIME = #{sendTime}
         AND M.SENDTIME IS NOT NULL AND M.RECVTIME IS NOT NULL
     </select>
+
+    <select id="getStationList" resultMap="result_rtustation">
+        SELECT R.STCD,R.RTUCD,R.STCD8,R.CTCD,R.STNM,R.RVNM,R.BSNM,R.HNNM,R.PROTOCOL,R.DTMEL,R.STTP,R.ACCURATY,R.RIVER_WARN_LOW,R.RIVER_WARN_HIGH,
+        R.RAIN_WARN_MINUTE,R.TELPHONE,R.FLAG_HD,R.CENTER ,R.BORROW
+        FROM RTU_STATION R WHERE 1=1
+        <if test="stcd!=null and stcd!=''">
+            AND (R.STCD LIKE #{stcd} OR R.RTUCD LIKE #{stcd} OR R.STCD8 LIKE #{stcd})
+        </if>
+        <if test="protocol!=null and protocol!=''">
+            AND  R.PROTOCOL = #{protocol}
+        </if>
+        <if test="sttp!=null and sttp!=''">
+            AND  R.STTP = #{sttp}
+        </if>
+    </select>
+
 </mapper>
