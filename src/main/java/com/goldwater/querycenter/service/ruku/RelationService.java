@@ -14,6 +14,7 @@ import com.goldwater.querycenter.entity.management.Priviliges;
 import com.goldwater.querycenter.entity.management.User;
 import com.goldwater.querycenter.entity.ruku.Cosst;
 import com.goldwater.querycenter.entity.ruku.RtuStation;
+import com.goldwater.querycenter.entity.ruku.vo.CosstVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZqrlRelationVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZvarlRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -367,6 +368,221 @@ public class RelationService {
         rs.setData(p);
         rs.setTotal(Integer.parseInt(p.getTotal() + ""));
         rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result getStationSelect(){
+        Result rs = new Result();
+
+        rs.setData(rtuStationDao.getStationSelect());
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result checkStation(String stcd, String id){
+        Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
+
+        CosstVo vo = cosstDao.getCosst(stcd, id);
+
+        if (vo != null){
+            map.put("STATUS", false);
+        }
+        else {
+            map.put("STATUS", true);
+        }
+
+        rs.setData(map);
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result addStation(String stcd, String rtucd, String stcd8, String stnm, String rvnm, String bsnm, String hnnm, String protocol, String dtmel, String sttp, String telphone, String flag_hd, String center, String borrow){
+        Result rs = new Result();
+        RtuStation station = new RtuStation();
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        station.setStcd(stcd);
+        station.setRtucd(rtucd);
+        station.setStcd8(stcd8);
+        station.setStnm(stnm);
+        station.setRvnm(rvnm);
+        station.setBsnm(bsnm);
+        station.setHnnm(hnnm);
+        station.setProtocol(protocol);
+        station.setSttp(sttp);
+        station.setTelephone(telphone);
+        station.setFlag_hd(flag_hd);
+        station.setCenter(center);
+        station.setBorrow(borrow);
+
+        if(!StringUtil.isBlank(dtmel)){
+            station.setDtmel(Double.parseDouble(dtmel));
+        }
+
+        if("SL651".equals(protocol)) {
+            String flag_rain="0";
+            String flag_water="0";
+            if("1".equals(sttp)) {
+                // 雨量站
+                flag_rain="1";
+            }else if("2".equals(sttp)) {
+                // 水位站
+                flag_water="1";
+            }else {
+                // 水位雨量站
+                flag_water="1";
+                flag_rain="1";
+            }
+
+            station.setFlag_rain(flag_rain);
+            station.setFlag_water(flag_water);
+        }
+
+        if (rtuStationDao.insertSelective(station) >0){
+            map.put("ERRNO", "0");
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加新测站信息失败！");
+            rs.setCode(Result.FAILURE);
+        }
+
+        rs.setData(map);
+
+        return rs;
+    }
+
+    public Result updateStation(String stcd, String rtucd, String stcd8, String stnm, String rvnm, String bsnm, String hnnm, String protocol, String dtmel, String sttp, String telphone, String flag_hd, String center, String borrow){
+        Result rs = new Result();
+        Double dt = null;
+        String flag_rain = "";
+        String flag_water = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(!StringUtil.isBlank(dtmel)){
+            dt = (Double.parseDouble(dtmel));
+        }
+
+        if("SL651".equals(protocol)) {
+            flag_rain="0";
+            flag_water="0";
+
+            if("1".equals(sttp)) {
+                // 雨量站
+                flag_rain="1";
+            }else if("2".equals(sttp)) {
+                // 水位站
+                flag_water="1";
+            }else {
+                // 水位雨量站
+                flag_water="1";
+                flag_rain="1";
+            }
+        }
+
+        if (rtuStationDao.updateStation(stcd, rtucd, stcd8, stnm, rvnm, bsnm, hnnm, protocol, dt, sttp, telphone, flag_hd, center, borrow, flag_rain, flag_water) > 0){
+            map.put("ERRNO", "0");
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "修改测站信息失败！");
+            rs.setCode(Result.FAILURE);
+        }
+
+        return rs;
+    }
+
+    public Result delStation(String ids){
+        Result rs = new Result();
+
+        if (!"".equals(ids) && !"null".equals(ids)) {
+            String[] idlist = ids.split(";");
+            List<Map> list = new ArrayList<>();
+
+            for (int i = 0; i < idlist.length; i++) {
+                Map m = new HashMap();
+                String id = idlist[i];
+                String [] cds = id.split(",");
+
+                m.put("stcd", cds[0]);
+                m.put("rtucd", cds[1]);
+                m.put("stcd8", cds[2]);
+
+                list.add(m);
+            }
+
+            if (rtuStationDao.delStation(list) > 0){
+                rs.setCode(Result.SUCCESS);
+            }
+            else{
+                rs.setCode(Result.FAILURE);
+                rs.setMsg("删除测站信息失败！");
+            }
+        }
+
+        return rs;
+    }
+
+    public Result customStation(String stcd_id){
+        Result rs = new Result();
+
+        if (!"".equals(stcd_id) && !"null".equals(stcd_id)) {
+            String[] stcd_ptnoarr = stcd_id.split(";");
+            List<Map> list = new ArrayList<>();
+
+            for (int i = 0; i < stcd_ptnoarr.length; i++) {
+                Map m = new HashMap();
+                String[] stcdarr = stcd_ptnoarr[i].split(",");
+
+                m.put("stcd", stcdarr[0]);
+                m.put("id", stcdarr[1]);
+
+                list.add(m);
+            }
+
+            if (rtuStationDao.customStation(list) > 0){
+                rs.setCode(Result.SUCCESS);
+            }
+            else{
+                rs.setCode(Result.FAILURE);
+                rs.setMsg("添加自定义站点信息失败！");
+            }
+        }
+
+        return rs;
+    }
+
+    public Result deleteCustom(String stcd_id){
+        Result rs = new Result();
+
+        if (!"".equals(stcd_id) && !"null".equals(stcd_id)) {
+            String[] stcd_ptnoarr = stcd_id.split(";");
+            List<Map> list = new ArrayList<>();
+
+            for (int i = 0; i < stcd_ptnoarr.length; i++) {
+                Map m = new HashMap();
+                String[] stcdarr = stcd_ptnoarr[i].split(",");
+
+                m.put("stcd", stcdarr[0]);
+                m.put("id", stcdarr[1]);
+
+                list.add(m);
+            }
+
+            if (rtuStationDao.deleteCustom(list) > 0){
+                rs.setCode(Result.SUCCESS);
+            }
+            else{
+                rs.setCode(Result.FAILURE);
+                rs.setMsg("删除自定义站点信息失败！");
+            }
+        }
 
         return rs;
     }

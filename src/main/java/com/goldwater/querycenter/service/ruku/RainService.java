@@ -75,7 +75,7 @@ public class RainService {
     public void exportRain5m(String stdm, String startTm, String endTm, HttpServletRequest request, HttpServletResponse response)  throws IOException {
         //测站和起始时间为必输项
         if(!StringUtil.isBlank(stdm)&&!StringUtil.isBlank(startTm)){
-            List<RtuStation> list = rtuStationDao.queryStcdStnm(stdm);
+            List<RtuStation> list = rtuStationDao.queryStcdStnm(stdm, "", "");
 
             String filename="";
 

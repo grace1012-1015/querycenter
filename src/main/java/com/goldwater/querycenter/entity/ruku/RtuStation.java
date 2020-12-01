@@ -39,7 +39,7 @@ public class RtuStation {
     private String hnnm;
 
     @Column(name = "DTMEL")
-    private String dtmel;
+    private Double dtmel;
 
     @Column(name = "ACCURATY")
     private String accuraty;
@@ -64,4 +64,10 @@ public class RtuStation {
 
     @Column(name = "BORROW")
     private String borrow;
+
+    @Column(name = "FLAG_RAIN")
+    private String flag_rain;
+
+    @Column(name = "FLAG_WATER")
+    private String flag_water;
 }

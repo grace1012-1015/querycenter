@@ -160,4 +160,96 @@ public class RelationController {
                                  @RequestParam(name = "limit", defaultValue = "10") int length){
         return relationService.getStationList(stcd, protocol, sttp, pageIndex, length);
     }
+
+    /**
+     *  获取stcd和stnm的对应关系(下拉选择框搜索)
+     */
+    @PostMapping("/getStationSelect")
+    @ResponseBody
+    public Result getStationSelect(){
+        return relationService.getStationSelect();
+    }
+
+    /**
+     * 检查新增水位流量关系数据是否存在
+     */
+    @PostMapping("/checkStation")
+    @ResponseBody
+    public Result checkStation(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                               @RequestParam(name = "ID", defaultValue = "") String id){
+        return relationService.checkStation(stcd, id);
+    }
+
+    /**
+     * 添加新测站信息
+     *
+     */
+    @PostMapping("/addStation")
+    @ResponseBody
+    public Result addStation(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                             @RequestParam(name = "RTUCD", defaultValue = "") String rtucd,
+                             @RequestParam(name = "STCD8", defaultValue = "") String stcd8,
+                             @RequestParam(name = "STNM", defaultValue = "") String stnm,
+                             @RequestParam(name = "RVNM", defaultValue = "") String rvnm,
+                             @RequestParam(name = "BSNM", defaultValue = "") String bsnm,
+                             @RequestParam(name = "HNNM", defaultValue = "") String hnnm,
+                             @RequestParam(name = "PROTOCOL", defaultValue = "") String protocol,
+                             @RequestParam(name = "DTMEL", defaultValue = "") String dtmel,
+                             @RequestParam(name = "STTP", defaultValue = "") String sttp,
+                             @RequestParam(name = "STTP", defaultValue = "") String telphone,
+                             @RequestParam(name = "FLAG_HD", defaultValue = "") String flag_hd,
+                             @RequestParam(name = "CENTER", defaultValue = "") String center,
+                             @RequestParam(name = "BORROW", defaultValue = "") String borrow){
+        return relationService.addStation(stcd, rtucd, stcd8, stnm, rvnm, bsnm, hnnm, protocol, dtmel, sttp, telphone, flag_hd, center, borrow);
+    }
+
+    /**
+     * 修改测站信息
+     *
+     */
+    @PostMapping("/updateStation")
+    @ResponseBody
+    public Result updateStation(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                                @RequestParam(name = "RTUCD", defaultValue = "") String rtucd,
+                                @RequestParam(name = "STCD8", defaultValue = "") String stcd8,
+                                @RequestParam(name = "STNM", defaultValue = "") String stnm,
+                                @RequestParam(name = "RVNM", defaultValue = "") String rvnm,
+                                @RequestParam(name = "BSNM", defaultValue = "") String bsnm,
+                                @RequestParam(name = "HNNM", defaultValue = "") String hnnm,
+                                @RequestParam(name = "PROTOCOL", defaultValue = "") String protocol,
+                                @RequestParam(name = "DTMEL", defaultValue = "") String dtmel,
+                                @RequestParam(name = "STTP", defaultValue = "") String sttp,
+                                @RequestParam(name = "STTP", defaultValue = "") String telphone,
+                                @RequestParam(name = "FLAG_HD", defaultValue = "") String flag_hd,
+                                @RequestParam(name = "CENTER", defaultValue = "") String center,
+                                @RequestParam(name = "BORROW", defaultValue = "") String borrow){
+        return relationService.updateStation(stcd, rtucd, stcd8, stnm, rvnm, bsnm, hnnm, protocol, dtmel, sttp, telphone, flag_hd, center, borrow);
+    }
+
+    /**
+     * 删除测站信息
+     */
+    @PostMapping("/delStation")
+    @ResponseBody
+    public Result delStation(@RequestParam(name = "IDS", defaultValue = "") String ids){
+        return relationService.delStation(ids);
+    }
+
+    /**
+     * 添加自定义站点。
+     */
+    @PostMapping("/customStation")
+    @ResponseBody
+    public Result customStation(@RequestParam(name = "STCD_ID", defaultValue = "") String stcd_id){
+        return relationService.customStation(stcd_id);
+    }
+
+    /**
+     * 删除自定义站点。
+     */
+    @PostMapping("/deleteCustom")
+    @ResponseBody
+    public Result deleteCustom(@RequestParam(name = "STCD_ID", defaultValue = "") String stcd_id){
+        return relationService.deleteCustom(stcd_id);
+    }
 }

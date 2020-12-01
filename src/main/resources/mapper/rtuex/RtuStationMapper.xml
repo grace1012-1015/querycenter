@@ -41,7 +41,16 @@
 
     <select id="queryStcdStnm" resultMap="result_rtustation">
         SELECT STCD8 STCD, STNM, STTP FROM RTU_STATION
-        WHERE STCD8 = #{stcd8}
+        WHERE (1 = 1)
+        <if test="stcd8!=null and stcd8!=''">
+            AND STCD8 = #{stcd8}
+        </if>
+        <if test="stcd!=null and stcd!=''">
+            AND STCD = #{stcd}
+        </if>
+        <if test="rtucd!=null and rtucd!=''">
+            AND rtucd = #{rtucd}
+        </if>
     </select>
 
     <select id="selectTop1StationMessage" resultMap="result_stationmessage">
@@ -66,5 +75,58 @@
             AND  R.STTP = #{sttp}
         </if>
     </select>
+
+    <select id="getStationSelect" resultMap="result_rtustation">
+        SELECT DISTINCT STCD8 STCD,STNM FROM RTU_STATION
+    </select>
+
+    <update id="updateStation">
+        UPDATE RTU_STATION SET
+        STNM = #{stnm},
+        RVNM = #{rvnm},
+        BSNM = #{bsnm},
+        HNNM = #{hnnm},
+        PROTOCOL = #{protocol},
+        DTMEL = #{dtmel},
+        STTP = #{sttp},
+        TELPHONE = #{telphone},
+        FLAG_HD = #{flag_hd},
+        CENTER = #{center},
+        <if test="flag_rain!=null and flag_rain!=''">
+            FLAG_RAIN = #{flag_rain},
+        </if>
+        <if test="flag_water!=null and flag_water!=''">
+            FLAG_WATER = #{flag_water},
+        </if>
+        BORROW = #{borrow}
+        WHERE STCD = #{stcd} AND RTUCD = #{rtucd} AND STCD8 = #{stcd8}
+    </update>
+
+    <delete id="delStation">
+        BEGIN
+        <foreach collection="list" item="item" separator=";">
+            DELETE FROM RTU_STATION
+            WHERE STCD = #{item.stcd} AND RTUCD = #{item.rtucd} AND STCD8 = #{item.stcd8}
+        </foreach>
+        ;END;
+    </delete>
+
+    <update id="customStation">
+        BEGIN
+        <foreach collection="list" item="item" separator=";">
+            UPDATE ST_COSST_B SET CUSTOM = 1
+            WHERE STCD = #{item.stcd} AND ID = #{item.id}
+        </foreach>
+        ;END;
+    </update>
+
+    <update id="deleteCustom">
+        BEGIN
+        <foreach collection="list" item="item" separator=";">
+            UPDATE ST_COSST_B SET CUSTOM = 0
+            WHERE STCD = #{item.stcd} AND ID = #{item.id}
+        </foreach>
+        ;END;
+    </update>
 
 </mapper>
