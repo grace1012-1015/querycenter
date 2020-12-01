@@ -252,4 +252,72 @@ public class RelationController {
     public Result deleteCustom(@RequestParam(name = "STCD_ID", defaultValue = "") String stcd_id){
         return relationService.deleteCustom(stcd_id);
     }
+
+    /**
+     * 测站和分类关系数据查询
+     */
+    @PostMapping("/getCosstList")
+    @ResponseBody
+    public Result getCosstList(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                               @RequestParam(name = "id", defaultValue = "") String id){
+        return relationService.getCosstList(stcd, id);
+    }
+
+    /**
+     * 入库测站数据查询
+     */
+    @PostMapping("/getConfigList")
+    @ResponseBody
+    public Result getConfigList(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                                @RequestParam(name = "sttp", defaultValue = "") String sttp){
+        return relationService.getConfigList(stcd, sttp);
+    }
+
+    /**
+     * 检查新增测站和分类关系数据是否存在
+     */
+    @PostMapping("/checkConfig")
+    @ResponseBody
+    public Result checkConfig(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                              @RequestParam(name = "sttp", defaultValue = "") String sttp){
+        return relationService.checkConfig(stcd, sttp);
+    }
+
+    /**
+     * 添加测站和分类关系
+     *
+     */
+    @PostMapping("/addConfig")
+    @ResponseBody
+    public Result addConfig(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                            @RequestParam(name = "STNM", defaultValue = "") String stnm,
+                            @RequestParam(name = "STTP", defaultValue = "") String sttp,
+                            @RequestParam(name = "PMAX5M", defaultValue = "") String pmax5m,
+                            @RequestParam(name = "PMAX1H", defaultValue = "") String pmax1h,
+                            @RequestParam(name = "ZMIN", defaultValue = "") String zmin,
+                            @RequestParam(name = "ZMAX", defaultValue = "") String zmax,
+                            @RequestParam(name = "TIMECT", defaultValue = "") String timect,
+                            @RequestParam(name = "RUKU", defaultValue = "") String ruku){
+        return relationService.addConfig(stcd, stnm, sttp, pmax5m, pmax1h, zmin, zmax, timect, ruku);
+    }
+
+    /**
+     * 单条测站和分类关系数据查询
+     *
+     */
+    @PostMapping("/getConfig")
+    @ResponseBody
+    public Result getConfig(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                            @RequestParam(name = "STTP", defaultValue = "") String sttp){
+        return relationService.getConfig(stcd, sttp);
+    }
+
+    /**
+     * 删除测站和分类关系
+     */
+    @PostMapping("/deleteConfig")
+    @ResponseBody
+    public Result deleteConfig(@RequestParam(name = "STCD_STTP", defaultValue = "") String stcd_sttp){
+        return relationService.deleteConfig(stcd_sttp);
+    }
 }

@@ -8,7 +8,7 @@
     <resultMap id="result_cosst" type="com.goldwater.querycenter.entity.ruku.vo.CosstVo">
         <result property="stcd" column="STCD"/>
         <result property="stnm" column="STNM"/>
-        <result property="stnm" column="STNM"/>
+        <result property="ordr" column="ORDR"/>
     </resultMap>
 
     <select id="getMaxOrdr" resultType="string">

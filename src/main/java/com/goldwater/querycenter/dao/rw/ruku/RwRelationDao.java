@@ -20,4 +20,6 @@ public interface RwRelationDao {
     String getMaxZvarlPtno(@Param("stcd") String stcd);
 
     int deleteZvarl(@Param("list") List<Map> list);
+
+    String getStlc(@Param("stcd") String stcd);
 }

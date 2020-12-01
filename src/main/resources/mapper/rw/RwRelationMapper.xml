@@ -45,4 +45,8 @@
         </foreach>
         ;END;
     </delete>
+
+    <select id="getStlc" resultType="string">
+        SELECT STLC FROM ST_STBPRP_B WHERE STCD = #{stcd}
+    </select>
 </mapper>

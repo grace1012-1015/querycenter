@@ -11,4 +11,10 @@ public class CosstVo implements Serializable {
     private String stnm;
 
     private String ordr;
+
+    private String arnm;
+
+    private String custom;
+
+    private String stlc;
 }

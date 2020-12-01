@@ -14,6 +14,7 @@ import com.goldwater.querycenter.entity.management.Priviliges;
 import com.goldwater.querycenter.entity.management.User;
 import com.goldwater.querycenter.entity.ruku.Cosst;
 import com.goldwater.querycenter.entity.ruku.RtuStation;
+import com.goldwater.querycenter.entity.ruku.StConfig;
 import com.goldwater.querycenter.entity.ruku.vo.CosstVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZqrlRelationVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZvarlRelationVo;
@@ -581,6 +582,147 @@ public class RelationService {
             else{
                 rs.setCode(Result.FAILURE);
                 rs.setMsg("删除自定义站点信息失败！");
+            }
+        }
+
+        return rs;
+    }
+
+    public Result getCosstList(String stdm, String id){
+        Result rs = new Result();
+
+        List<CosstVo> list = ycdbRelationDao.getCosstList(stdm, id);
+
+        for (CosstVo vo : list){
+            vo.setStlc(rwRelationDao.getStlc(vo.getStcd()));
+        }
+
+        rs.setData(list);
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result getConfigList(String stdm, String sttp){
+        Result rs = new Result();
+
+        rs.setData(ycdbRelationDao.getCosstList(stdm, sttp));
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result checkConfig(String stcd, String sttp){
+        Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
+
+        StConfig sc = ycdbRelationDao.getConfig(stcd, sttp);
+
+        if (sc != null){
+            map.put("STATUS", false);
+        }
+        else {
+            map.put("STATUS", true);
+        }
+
+        rs.setData(map);
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result addConfig(String stcd, String stnm, String sttp, String pmax5m, String pmax1h, String zmin, String zmax, String timect, String ruku){
+        Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
+        Map<String,Object> rukuMap = new HashMap<String,Object>();
+
+        boolean srage=false;
+        boolean dye=false;
+        boolean wtmp=false;
+        boolean gate=false;
+        boolean volgate=false;
+        boolean soil=false;
+        boolean velocity=false;
+        boolean ott=false;
+
+        if(!StringUtil.isBlank(ruku)){
+            String[] arr = ruku.split(",");
+
+            for(String r:arr){
+                rukuMap.put(r, true);
+            }
+
+            srage = rukuMap.get("SRAGE")==null?false:true;
+            dye = rukuMap.get("DYE")==null?false:true;
+            wtmp = rukuMap.get("WTMP")==null?false:true;
+            gate = rukuMap.get("GATE")==null?false:true;
+            volgate = rukuMap.get("VOLGATE")==null?false:true;
+            velocity = rukuMap.get("VELOCITY")==null?false:true;
+            ott = rukuMap.get("OTT")==null?false:true;
+        }
+
+        StConfig sc = ycdbRelationDao.getConfig(stcd, "");
+
+        // 顺序号不为空时说明是更新数据
+        if(sc != null){
+            if (ycdbRelationDao.updateConfig(stcd, stnm, sttp, pmax5m, pmax1h, zmin, zmax, timect, srage, dye, wtmp, gate, volgate, soil, velocity, ott) > 0){
+                map.put("ERRNO", "0");
+            }
+            else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "更新测站和分类关系失败！");
+            }
+        }
+        else{
+            if (ycdbRelationDao.addConfig(stcd, stnm, sttp, pmax5m, pmax1h, zmin, zmax, timect, srage, dye, wtmp, gate, volgate, soil, velocity, ott) > 0){
+                map.put("ERRNO", "0");
+            }
+            else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "添加测站和分类关系失败！");
+            }
+        }
+
+        rs.setData(map);
+        rs.setCode(Result.SUCCESS);
+
+
+        return rs;
+    }
+
+    public Result getConfig(String stcd, String sttp){
+        Result rs = new Result();
+
+        rs.setData(ycdbRelationDao.getConfig(stcd, sttp));
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
+    public Result deleteConfig(String stcd_sttp){
+        Result rs = new Result();
+
+        if (!"".equals(stcd_sttp) && !"null".equals(stcd_sttp)) {
+            String[] idlist = stcd_sttp.split(";");
+            List<Map> list = new ArrayList<>();
+
+            for (int i = 0; i < idlist.length; i++) {
+                Map m = new HashMap();
+                String id = idlist[i];
+                String [] cds = id.split(",");
+
+                m.put("stcd", cds[0]);
+                m.put("sttp", cds[1]);
+
+                list.add(m);
+            }
+
+            if (ycdbRelationDao.deleteConfig(list) > 0){
+                rs.setCode(Result.SUCCESS);
+            }
+            else{
+                rs.setCode(Result.FAILURE);
+                rs.setMsg("删除测站和分类关系信息失败！");
             }
         }
 
