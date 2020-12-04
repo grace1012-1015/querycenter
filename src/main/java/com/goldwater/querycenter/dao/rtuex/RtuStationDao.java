@@ -17,7 +17,7 @@ public interface RtuStationDao extends Mapper<RtuStation> {
 
     List<RtuStation> getStationSelect();
 
-    int updateStation(String stcd, String rtucd, String stcd8, String stnm, String rvnm, String bsnm, String hnnm, String protocol, Double dtmel, String sttp, String telphone, String flag_hd, String center, String borrow, String flag_rain, String flag_water);
+    int updateStation(@Param("list") String stcd, @Param("rtucd") String rtucd, @Param("stcd8") String stcd8, @Param("stnm") String stnm, @Param("rvnm") String rvnm, @Param("bsnm") String bsnm, @Param("hnnm") String hnnm, @Param("protocol") String protocol, @Param("dtmel") Double dtmel, @Param("sttp") String sttp, @Param("telphone") String telphone, @Param("flag_hd") String flag_hd, @Param("center") String center, @Param("borrow") String borrow, @Param("flag_rain") String flag_rain, @Param("flag_water") String flag_water);
 
     int delStation(@Param("list") List<Map> list);
 

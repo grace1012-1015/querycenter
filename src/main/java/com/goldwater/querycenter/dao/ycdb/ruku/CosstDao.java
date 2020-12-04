@@ -17,4 +17,12 @@ public interface CosstDao extends Mapper<Cosst> {
     int updateCosst(@Param("arnm") String arnm, @Param("stnm") String stnm, @Param("ordr") String ordr, @Param("stcd") String stcd, @Param("id") String id);
 
     CosstVo getCosst(@Param("stcd") String stcd, @Param("id") String id);
+
+    List<CosstVo> getSoilCosst_Level3(@Param("privilegeId") String privilegeId, @Param("stcd") String stcd);
+
+    List<CosstVo> getSoilCosst(@Param("stcd") String stcd);
+
+    List<CosstVo> getSwRainCosst_Level3(@Param("privilegeId") String privilegeId, @Param("stcd") String stcd, @Param("type") String type, @Param("custom") String custom, @Param("addvcd") String addvcd);
+
+    List<CosstVo> getSwRainCosst(@Param("stcd") String stcd, @Param("type") String type, @Param("custom") String custom, @Param("addvcd") String addvcd);
 }

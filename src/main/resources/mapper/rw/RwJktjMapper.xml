@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.goldwater.querycenter.dao.rw.ruku.RwJktjDao">
+    <select id="querySoil" parameterType="String" resultType="java.util.Map">
+        SELECT a.stnm,t.* FROM (SELECT t.stcd
+        <foreach collection="list" item="info" separator="">
+            ,MIN(CASE t.TM WHEN to_date(#{info.date},'yyyyMMddHH24') THEN t.VTAVSLM END) AS #{info.drp}
+        </foreach>
+        FROM ST_SOIL_R t GROUP BY t.stcd) t
+        LEFT JOIN ST_STBPRP_B a ON t.stcd=a.stcd WHERE 1=1 AND A.STCD = #{stcd}
+    </select>
+
+    <select id="querySwRainJk" parameterType="String" resultType="java.util.Map">
+        SELECT
+        <foreach collection="list" item="info" separator="">
+            MIN(CASE to_char(A.TM, 'hh24') when #{info.index} THEN A.DRP END) AS #{info.drp},
+        </foreach>
+        A.STCD,MIN(A.DYP) AS DYP  FROM (select R.STCD, R.TM, R.DRP,(CASE to_char(R.TM, 'yyyy-mm-dd hh24') WHEN
+        #{time} || '08' THEN R.DYP END) AS DYP  FROM ST_PPTN_R R WHERE (to_char(R.TM, 'yyyy-mm-dd') = #{time}
+        OR to_char(R.TM, 'yyyy-mm-dd') = #{tomorTime}
+        AND to_char(R.TM, 'yyyy-mm-dd hh24') >= #{time} || '08' AND to_char(R.TM, 'yyyy-mm-dd hh24') &lt;=  #{tomorTime} || '07'
+        AND R.STCD = #{stcd} ) A  GROUP BY A.STCD
+    </select>
+
+</mapper>

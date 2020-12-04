@@ -1,13 +1,14 @@
 package com.goldwater.querycenter.dao.rw.ruku;
 
 import com.goldwater.querycenter.entity.ruku.ReportConfigMetaData;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
 
 @org.apache.ibatis.annotations.Mapper
 public interface ReportDao {
-    List<ReportConfigMetaData> getReportConfigMetaData(String rid);
+    List<ReportConfigMetaData> getReportConfigMetaData(@Param("rid") String rid);
 
-    List<Map<String, Object>> getSqjbList(String rid, List<ReportConfigMetaData> list);
+    List<Map<String, Object>> getSqjbList(@Param("rid") String rid, @Param("list") List<ReportConfigMetaData> list);
 }

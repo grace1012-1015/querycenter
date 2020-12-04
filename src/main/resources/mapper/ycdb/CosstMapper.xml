@@ -32,4 +32,58 @@
         SELECT * FROM ST_COSST_B
         WHERE STCD = #{stcd} and ID = #{id};
     </select>
+
+    <select id="getSoilCosst_Level3" resultMap="result_cosst">
+        SELECT A.STCD,A.STNM,A.ORDR FROM ST_COSST_B A,ST_PRIVILEGE_STCDS B
+        WHERE A.STCD=B.STCD AND A.ID = '5' AND B.PRIVILEGE_ID = #{privilegeId}
+        <if test="stcd!=null and stcd!=''">
+            AND A.STCD = #{stcd}
+        </if>
+        ORDER BY A.ORDR ASC
+    </select>
+
+    <select id="getSoilCosst" resultMap="result_cosst">
+        SELECT A.STCD,A.STNM,A.ORDR FROM ST_COSST_B A WHERE  A.ID = '5'
+        WHERE (1 = 1)
+        <if test="stcd!=null and stcd!=''">
+            AND A.STCD = #{stcd}
+        </if>
+        ORDER BY A.ORDR ASC
+    </select>
+
+    <select id="getSwRainCosst_Level3" resultMap="result_cosst">
+        SELECT A.STCD,A.STNM,A.ORDR FROM ST_COSST_B A,ST_PRIVILEGE_STCDS B,ST_STBPRP_B S
+        WHERE A.STCD=B.STCD AND A.STCD=S.STCD AND B.PRIVILEGE_ID = #{privilegeId}
+        <if test="stcd!=null and stcd!=''">
+            AND A.STCD = #{stcd}
+        </if>
+        <if test="type!=null and type!=''">
+            AND A.ID = #{type}
+        </if>
+        <if test="custom!=null and custom!=''">
+            AND A.CUSTOM = #{custom}
+        </if>
+        <if test="addvcd!=null and addvcd!=''">
+            AND S.ADDVCD = #{addvcd}
+        </if>
+        ORDER BY A.ORDR ASC
+    </select>
+
+    <select id="getSwRainCosst" resultMap="result_cosst">
+        SELECT A.STCD,A.STNM,A.CUSTOM,A.ORDR FROM ST_COSST_B A,ST_STBPRP_B S
+        WHERE A.STCD=S.STCD AND 1=1
+        <if test="stcd!=null and stcd!=''">
+            AND A.STCD = #{stcd}
+        </if>
+        <if test="type!=null and type!=''">
+            AND A.ID = #{type}
+        </if>
+        <if test="custom!=null and custom!=''">
+            AND A.CUSTOM = #{custom}
+        </if>
+        <if test="addvcd!=null and addvcd!=''">
+            AND S.ADDVCD = #{addvcd}
+        </if>
+        ORDER BY A.ORDR ASC
+    </select>
 </mapper>
