@@ -5,6 +5,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.goldwater.querycenter.dao.rw.ruku.RwJktjDao">
+    <resultMap id="result_pptn" type="com.goldwater.querycenter.entity.ruku.vo.PptnVo">
+        <result property="stcd" column="STCD"/>
+        <result property="stlc" column="STLC"/>
+        <result property="tj" column="TJ"/>
+    </resultMap>
+
     <select id="querySoil" parameterType="String" resultType="java.util.Map">
         SELECT a.stnm,t.* FROM (SELECT t.stcd
         <foreach collection="list" item="info" separator="">
@@ -14,7 +20,7 @@
         LEFT JOIN ST_STBPRP_B a ON t.stcd=a.stcd WHERE 1=1 AND A.STCD = #{stcd}
     </select>
 
-    <select id="querySwRainJk" parameterType="String" resultType="java.util.Map">
+    <select id="querySwRainJk" resultType="java.util.Map">
         SELECT
         <foreach collection="list" item="info" separator="">
             MIN(CASE to_char(A.TM, 'hh24') when #{info.index} THEN A.DRP END) AS #{info.drp},
@@ -24,6 +30,46 @@
         OR to_char(R.TM, 'yyyy-mm-dd') = #{tomorTime}
         AND to_char(R.TM, 'yyyy-mm-dd hh24') >= #{time} || '08' AND to_char(R.TM, 'yyyy-mm-dd hh24') &lt;=  #{tomorTime} || '07'
         AND R.STCD = #{stcd} ) A  GROUP BY A.STCD
+    </select>
+
+    <select id="querySwWaterJk" resultType="java.util.Map">
+        SELECT
+        <foreach collection="list" item="info" separator="">
+            MAX (CASE to_char(A.TM, 'hh24') when #{info.index} THEN A.Z END) AS #{info.drp},
+        </foreach>
+        A.STCD from (
+        SELECT * FROM (SELECT R.STCD, R.TM, R.RZ AS Z FROM ST_RSVR_R R WHERE R.STCD = #{stcd}
+        UNION ALL SELECT R.STCD, R.TM, #{upOrDown} AS Z
+        FROM ST_WAS_R R WHERE R.STCD = #{stcd}
+        UNION ALL SELECT R.STCD, R.TM, #{ppupOrPpdown} AS Z
+        FROM ST_PUMP_R R WHERE R.STCD = #{stcd}
+        UNION ALL SELECT R.STCD, R.TM, R.Z as Z from ST_RIVER_R R  where R.STCD = #{stcd}  )
+        R where (to_char(R.TM, 'yyyy-mm-dd') = #{time}
+        OR to_char(R.TM, 'yyyy-mm-dd') = #{tomorTime}
+        AND to_char(R.TM, 'yyyy-mm-dd hh24') >= #{time} || '00' AND to_char(R.TM, 'yyyy-mm-dd hh24') &lt;=  #{tomorTime} || '24'
+        AND R.STCD = #{stcd} ) A  GROUP BY A.STCD
+    </select>
+
+    <select id="querySwRainTJ" resultMap="result_pptn">
+        SELECT s.stcd,s.stlc,SUM(t.drp) AS tj FROM st_pptn_r t LEFT JOIN st_stbprp_b s ON t.stcd = s.stcd WHERE
+        t.tm &lt;= to_date(#{timeInterval}, 'yyyyMMddHH24') AND t.tm>=to_date(#{time} || '00','yyyyMMddHH24')
+        AND t.stcd = #{stcd} group by s.stcd,s.stlc
+    </select>
+
+    <select id="querySwRainTJ_00" resultMap="result_pptn">
+        SELECT s.stcd,s.stlc,t.dyp as tj FROM st_pptn_r t LEFT JOIN st_stbprp_b s ON t.stcd = s.stcd WHERE
+        t.tm = to_date(#{timeInt}, 'yyyyMMddHH24') AND t.stcd = #{stcd}
+    </select>
+
+    <select id="querySwRainTJ2" resultMap="result_pptn">
+        SELECT s.stcd,s.stlc,SUM(t.drp) AS tj FROM st_pptn_r t LEFT JOIN st_stbprp_b s ON t.stcd = s.stcd WHERE
+        t.tm &lt;= to_date(#{nowTime}, 'yyyyMMddHH24') AND t.tm>=to_date(#{oldTime},'yyyyMMddHH24')
+        AND t.stcd = #{stcd} group by s.stcd,s.stlc
+    </select>
+
+    <select id="querySwRainTJ2_00" resultMap="result_pptn">
+        SELECT s.stcd,s.stlc,t.dyp as tj FROM st_pptn_r t LEFT JOIN st_stbprp_b s ON t.stcd = s.stcd WHERE
+        t.tm = to_date(#{nowTime}, 'yyyyMMddHH24') AND t.stcd = #{stcd}
     </select>
 
 </mapper>

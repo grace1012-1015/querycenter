@@ -3,6 +3,8 @@ package com.goldwater.querycenter.entity.ruku.vo;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class CosstVo implements Serializable {
@@ -17,4 +19,6 @@ public class CosstVo implements Serializable {
     private String custom;
 
     private String stlc;
+
+    List<PptnVo> listPptn = new ArrayList<>();
 }
