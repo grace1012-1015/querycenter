@@ -49,7 +49,7 @@ public class JktjController {
     }
 
     /**
-     * 水位锟斤拷锟�(锟斤拷站)
+     * 水位监控(限站)
      */
     @PostMapping("/querySwWaterlevelJk2")
     @ResponseBody
@@ -74,7 +74,7 @@ public class JktjController {
     }
 
     /**
-     * 水锟斤拷锟斤拷锟斤拷统锟斤拷(锟斤拷站)20200329加
+     * 水文雨量统计(限站)20200329加
      */
     @PostMapping("/querySwRainTJ2")
     @ResponseBody
