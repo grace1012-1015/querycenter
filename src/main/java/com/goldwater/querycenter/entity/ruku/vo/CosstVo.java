@@ -8,6 +8,8 @@ import java.util.List;
 
 @Data
 public class CosstVo implements Serializable {
+    private String id;
+
     private String stcd;
 
     private String stnm;

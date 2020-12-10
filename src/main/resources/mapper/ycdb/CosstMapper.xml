@@ -6,6 +6,7 @@
 
 <mapper namespace="com.goldwater.querycenter.dao.ycdb.ruku.CosstDao">
     <resultMap id="result_cosst" type="com.goldwater.querycenter.entity.ruku.vo.CosstVo">
+        <result property="id" column="ID"/>
         <result property="stcd" column="STCD"/>
         <result property="stnm" column="STNM"/>
         <result property="ordr" column="ORDR"/>
@@ -52,7 +53,7 @@
     </select>
 
     <select id="getSwRainCosst_Level3" resultMap="result_cosst">
-        SELECT A.STCD,A.STNM,A.ORDR FROM ST_COSST_B A,ST_PRIVILEGE_STCDS B,ST_STBPRP_B S
+        SELECT A.ID, A.STCD,A.STNM,A.ORDR FROM ST_COSST_B A,ST_PRIVILEGE_STCDS B,ST_STBPRP_B S
         WHERE A.STCD=B.STCD AND A.STCD=S.STCD AND B.PRIVILEGE_ID = #{privilegeId}
         <if test="stcd!=null and stcd!=''">
             AND A.STCD = #{stcd}
@@ -70,7 +71,7 @@
     </select>
 
     <select id="getSwRainCosst" resultMap="result_cosst">
-        SELECT A.STCD,A.STNM,A.CUSTOM,A.ORDR FROM ST_COSST_B A,ST_STBPRP_B S
+        SELECT A.ID, A.STCD,A.STNM,A.CUSTOM,A.ORDR FROM ST_COSST_B A,ST_STBPRP_B S
         WHERE A.STCD=S.STCD AND 1=1
         <if test="stcd!=null and stcd!=''">
             AND A.STCD = #{stcd}

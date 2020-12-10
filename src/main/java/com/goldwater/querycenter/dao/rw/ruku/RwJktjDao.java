@@ -2,6 +2,7 @@ package com.goldwater.querycenter.dao.rw.ruku;
 
 import com.goldwater.querycenter.entity.ruku.vo.PptnVo;
 import com.goldwater.querycenter.entity.ruku.vo.RiverVo;
+import com.goldwater.querycenter.entity.ruku.vo.StcdZVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,4 +23,12 @@ public interface RwJktjDao {
     List<PptnVo> querySwRainTJ2(@Param("stcd") String stcd, @Param("nowTime") String nowTime, @Param("oldTime") String oldTime);
 
     List<PptnVo> querySwRainTJ2_00(@Param("stcd") String stcd, @Param("nowTime") String nowTime);
+
+    List<StcdZVo> getStcdZ_1Or3(@Param("time") String time);
+
+    List<StcdZVo> getStcdZ_2Or4(@Param("time") String time);
+
+    List<StcdZVo> getStcdZ(@Param("time") String time);
+
+    List<Map> getStbprp(@Param("id24Stcd") String id24Stcd);
 }

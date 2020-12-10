@@ -83,4 +83,15 @@ public class JktjController {
                                  @RequestParam(name = "interval", defaultValue = "") String interval){
         return jktjService.querySwRainTJ2(stcd, type, interval);
     }
+
+    /**
+     * 测站缺报统计(限站)
+     */
+    @PostMapping("/queryQbStationTJ")
+    @ResponseBody
+    public Result queryQbStationTJ(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                                   @RequestParam(name = "time", defaultValue = "") String time,
+                                   @RequestParam(name = "cosId", defaultValue = "") String cosId){
+        return jktjService.queryQbStationTJ(stcd, time, cosId);
+    }
 }

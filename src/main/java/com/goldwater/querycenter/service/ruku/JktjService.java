@@ -250,7 +250,7 @@ public class JktjService {
             }
 
             rs.setCode(Result.SUCCESS);
-            rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 1));
+            rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 10));
         }
         catch (Exception ex){
             rs.setCode(Result.FAILURE);
@@ -286,7 +286,139 @@ public class JktjService {
         }
 
         rs.setCode(Result.SUCCESS);
-        rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 1));
+        rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 10));
+
+        return rs;
+    }
+
+    public Result queryQbStationTJ(String stcd, String time, String cosId){
+        Result rs = new Result();
+        List<Map> dataResult = new ArrayList<>();
+        Map<String,Map<String, Object>> stations = new HashMap<String,Map<String, Object>>();
+        String type = "";
+        boolean flag = false;
+        int iCosId = 0;
+        long starttime=System.currentTimeMillis();
+
+        if (!StringUtil.isBlank(cosId)&&!"".equals(cosId)) {
+            flag = true;
+            iCosId = Integer.parseInt(cosId);
+            type = cosId;
+        }
+
+        List<CosstVo> listCosst = getSwjkCosst(stcd, type, "", "");
+
+        for (CosstVo csvo : listCosst) {
+            if(!StringUtil.isBlank(csvo.getStcd())){
+                stations.put(csvo.getStcd() + "|" + csvo.getId(), (Map<String, Object>) BeanUtil.objectToMap(csvo));
+            }
+        }
+
+        if (flag && (iCosId == 1 || iCosId == 3)){
+            dataResult.addAll((List<Map>) BeanUtil.objectToMap(rwJktjDao.getStcdZ_1Or3(time)));
+        }
+        else if(flag && (iCosId == 2 || iCosId == 4)){
+            dataResult.addAll((List<Map>) BeanUtil.objectToMap(rwJktjDao.getStcdZ_2Or4(time)));
+        }
+        else{
+            dataResult.addAll((List<Map>) BeanUtil.objectToMap(rwJktjDao.getStcdZ(time)));
+        }
+
+        //將rainlist嵌套入測站結果集中
+        Map<String, Object> datamap =new HashMap<String, Object>();
+        Iterator<Map> datatiter = dataResult.iterator();
+
+        while(datatiter.hasNext()) {
+            datamap=datatiter.next();
+
+            if(datamap.get("STCD") != null && !StringUtil.isBlank(datamap.get("STCD").toString())){
+                String id1=datamap.get("ID1").toString();
+                String id2=datamap.get("ID2").toString();
+
+                stations.remove(datamap.get("STCD").toString()+"|"+id1);
+                stations.remove(datamap.get("STCD").toString()+"|"+id2);
+            }
+        }
+
+        List<Map<String, Object>>  result = new ArrayList<Map<String, Object>>();
+        Map<String,Map<String, Object>> id13stations = new HashMap<String,Map<String, Object>>();
+        Map<String,Map<String, Object>> id24stations = new HashMap<String,Map<String, Object>>();
+        Map<String,Map<String, Object>> id25stations = new HashMap<String,Map<String, Object>>();
+
+        if(stations.size() > 0){
+            StringBuffer id13Stcd=new StringBuffer();
+            StringBuffer id24Stcd=new StringBuffer();
+            StringBuffer id25Stcd=new StringBuffer();
+
+            for (Map.Entry<String, Map<String, Object>> entry : stations.entrySet()) {
+                Map<String,Object> map=stations.get(entry.getKey());
+                if(Integer.parseInt(map.get("ID").toString())==1||Integer.parseInt(map.get("ID").toString())==3){
+                    id13Stcd.append(",").append("'").append(stations.get(entry.getKey()).get("STCD")).append("'");
+                    id13stations.put((String)stations.get(entry.getKey()).get("STCD"),stations.get(entry.getKey()));
+                }else if(Integer.parseInt(map.get("ID").toString())==5){
+                    id25Stcd.append(",").append("'").append(stations.get(entry.getKey()).get("STCD")).append("'");
+                    id25stations.put((String)stations.get(entry.getKey()).get("STCD"),stations.get(entry.getKey()));
+                }else{
+                    id24Stcd.append(",").append("'").append(stations.get(entry.getKey()).get("STCD")).append("'");
+                    id24stations.put((String)stations.get(entry.getKey()).get("STCD"),stations.get(entry.getKey()));
+                }
+            }
+
+            if(id13Stcd.toString().length()>0){
+                List<Map> vmapList = ycdbJktjDao.getStation_13(time + ":00:00", id13Stcd.substring(1));
+
+                if(vmapList != null && vmapList.size() > 0){
+                    for(Map tmp : vmapList){
+                        id13stations.get(tmp.get("STCD")).putAll(tmp);
+                    }
+                }
+            }
+
+            if(id24Stcd.toString().length()>0){
+                List<Map> sttpList = rwJktjDao.getStbprp(id24Stcd.substring(1));
+
+                StringBuffer idrrStcd=new StringBuffer();
+                StringBuffer idddStcd=new StringBuffer();
+                StringBuffer iddpStcd=new StringBuffer();
+                StringBuffer idppStcd=new StringBuffer();
+
+                if(sttpList!=null&&sttpList.size()>0){
+                    for(Map<String,Object> tmp:sttpList){
+                        //河道水位站提取的是ST_RIVER_R 里的水位（Z）字段，水库水位站提取的是ST_RSVR_R 的库上水位（RZ），堰闸站提取的是ST_WAS_R 里的闸上水位(UPZ)。
+                        if(!StringUtil.isBlank(tmp.get("STTP").toString()) && "RR".equals(tmp.get("STTP").toString())){
+                            idrrStcd.append(",").append("'").append(tmp.get("STCD")).append("'");
+                        }else if(!StringUtil.isBlank(tmp.get("STTP").toString()) && "DD".equals(tmp.get("STTP").toString())){
+                            idddStcd.append(",").append("'").append(tmp.get("STCD")).append("'");
+                        }else if(!StringUtil.isBlank(tmp.get("STTP").toString()) && "DP".equals(tmp.get("STTP").toString())){
+                            iddpStcd.append(",").append("'").append(tmp.get("STCD")).append("'");
+                        }else{
+                            idppStcd.append(",").append("'").append(tmp.get("STCD")).append("'");
+                        }
+                    }
+                }
+
+                List<Map> vmapList = ycdbJktjDao.getStation_24(time, (idrrStcd.toString().length() > 0 ? idrrStcd.substring(1) : ""), (idddStcd.toString().length() > 0 ? idddStcd.substring(1) : ""), (iddpStcd.toString().length() > 0 ? iddpStcd.substring(1) : ""), (idppStcd.toString().length() > 0 ? idppStcd.substring(1) : ""));
+
+                if(vmapList!=null&&vmapList.size()>0){
+                    for(Map<String,Object> tmp:vmapList){
+                        id24stations.get(tmp.get("STCD")).putAll(tmp);
+                    }
+                }
+            }
+
+            for(Map.Entry<String, Map<String, Object>> entry:id13stations.entrySet()){
+                result.add(entry.getValue());
+            }
+            for(Map.Entry<String, Map<String, Object>> entry:id24stations.entrySet()){
+                result.add(entry.getValue());
+            }
+        }
+
+        long endtime=System.currentTimeMillis();
+        System.out.println("查询耗时："+((endtime-starttime)/1000.0)+"秒。");
+
+        rs.setCode(Result.SUCCESS);
+        rs.setData(sortMap(result, 1, 10));
 
         return rs;
     }
@@ -297,34 +429,45 @@ public class JktjService {
                 //o1，o2是list中的Map，可以在其内取得值，按其排序，此例为升序，s1和s2是排序字段值
                 Double s1=0.0,s2=0.0;
                 Iterator<Map.Entry<String,Object>> it1 = o1.entrySet().iterator();
+
                 while (it1.hasNext()) {
                     Map.Entry<String, Object> entry = it1.next();
+
                     if("TJ".equals(entry.getKey().trim())){
                         if(entry.getValue()!=null){
                             s1=Double.parseDouble(entry.getValue().toString());
                         }
                     }
                 }
+
                 Iterator<Map.Entry<String,Object>> it2 = o2.entrySet().iterator();
+
                 while (it2.hasNext()) {
                     Map.Entry<String, Object> entry = it2.next();
+
                     if("TJ".equals(entry.getKey().trim())){
                         if(entry.getValue()!=null){
                             s2=Double.parseDouble(entry.getValue().toString());
                         }
                     }
                 }
+
                 if(s2!=null){
                     return s2.compareTo(s1);
                 }
+
                 return -1;
             }
         });
+
         int end=start*limit==0?limit:(start+1)*limit;
+
         if(end>=map.size()){
             end=map.size();
         }
+
         start=start*limit==0?0:start*limit-1;
+
         return map.subList(start,end);
     }
 
@@ -343,6 +486,5 @@ public class JktjService {
         }
 
         return cosstDao.getSwRainCosst(stcd, type, custom, addvcd);
-
     }
 }

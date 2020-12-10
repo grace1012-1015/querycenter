@@ -11,6 +11,14 @@
         <result property="tj" column="TJ"/>
     </resultMap>
 
+    <resultMap id="result_stcdZ" type="com.goldwater.querycenter.entity.ruku.vo.StcdZVo">
+        <result property="id1" column="ID1"/>
+        <result property="id2" column="ID2"/>
+        <result property="stcd" column="STCD"/>
+        <result property="tm" column="TM"/>
+        <result property="z" column="Z"/>
+    </resultMap>
+
     <select id="querySoil" parameterType="String" resultType="java.util.Map">
         SELECT a.stnm,t.* FROM (SELECT t.stcd
         <foreach collection="list" item="info" separator="">
@@ -72,4 +80,46 @@
         t.tm = to_date(#{nowTime}, 'yyyyMMddHH24') AND t.stcd = #{stcd}
     </select>
 
+    <select id="getStcdZ_1Or3" resultMap="result_stcdZ">
+        SELECT 1 AS ID1,3 AS ID2,R.STCD, R.TM, DRP AS Z FROM ST_PPTN_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+    </select>
+
+    <select id="getStcdZ_2Or4" resultMap="result_stcdZ">
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, R.Z AS Z FROM ST_RIVER_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, R.Z AS Z FROM ST_RSVR_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, NVL(R.DWZ, R.UPZ ) AS Z FROM ST_WAS_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, NVL(R.PPDWZ, R.PPUPZ ) AS Z FROM ST_PUMP_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+    </select>
+
+    <select id="getStcdZ" resultMap="result_stcdZ">
+        SELECT 1 AS ID1,3 AS ID2,R.STCD, R.TM, DRP AS Z FROM ST_PPTN_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, R.Z AS Z FROM ST_RIVER_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, R.Z AS Z FROM ST_RSVR_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, NVL(R.DWZ, R.UPZ ) AS Z FROM ST_WAS_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, NVL(R.PPDWZ, R.PPUPZ ) AS Z FROM ST_PUMP_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+        UNION ALL
+        SELECT 2 AS ID1,4 AS ID2,R.STCD, R.TM, R.VTAVSLM AS Z FROM ST_SOIL_R R
+        WHERE  R.TM=to_date(#{time},'yyyy-mm-dd hh24')
+    </select>
+
+    <select id="getStbprp" resultType="java.util.Map">
+        SELECT STCD,STTP FROM ST_STBPRP_B WHERE STCD IN (#{id24Stcd})
+    </select>
 </mapper>
