@@ -109,7 +109,7 @@ public class FlowController {
         Result rs = new Result();
 
         try {
-            flowService.exportFlow5r(stcd, startTm, endTm, request, response);
+            flowService.exportFlow5r(stcd, startTm, endTm, response);
         }
         catch (Exception e) {
             rs.setCode(Result.FAILURE);
@@ -130,7 +130,7 @@ public class FlowController {
         Result rs = new Result();
 
         try {
-            flowService.exportFlux5r(stcd, startTm, endTm, request, response);
+            flowService.exportFlux5r(stcd, startTm, endTm, response);
         }
         catch (Exception e) {
             rs.setCode(Result.FAILURE);

@@ -188,7 +188,7 @@ public class FlowService {
         return rs;
     }
 
-    public void exportFlow5r(String stdm, String startTm, String endTm, HttpServletRequest request, HttpServletResponse response) throws IOException{
+    public void exportFlow5r(String stdm, String startTm, String endTm, HttpServletResponse response) throws IOException{
         //测站和起始时间为必输项
         if(!StringUtil.isBlank(stdm)&&!StringUtil.isBlank(startTm)){
             List<RtuStation> list = rtuStationDao.queryStcdStnm(stdm, "", "");
@@ -307,7 +307,7 @@ public class FlowService {
         return wb;
     }
 
-    public void exportFlux5r(String stdm, String startTm, String endTm, HttpServletRequest request, HttpServletResponse response) throws IOException{
+    public void exportFlux5r(String stdm, String startTm, String endTm, HttpServletResponse response) throws IOException{
         //测站和起始时间为必输项
         if(!StringUtil.isBlank(stdm)&&!StringUtil.isBlank(startTm)){
             List<RtuStation> list = rtuStationDao.queryStcdStnm(stdm, "", "");

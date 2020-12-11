@@ -49,7 +49,7 @@ public class JktjController {
     }
 
     /**
-     * 水位监控(限站)
+     * 单个站整点水位查询
      */
     @PostMapping("/querySwWaterlevelJk2")
     @ResponseBody
@@ -74,7 +74,7 @@ public class JktjController {
     }
 
     /**
-     * 水文雨量统计(限站)20200329加
+     * 获取当前时间前几个小时的雨量累计值20200329加
      */
     @PostMapping("/querySwRainTJ2")
     @ResponseBody

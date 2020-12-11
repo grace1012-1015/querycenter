@@ -28,4 +28,27 @@
             , t.IDENTIFY from (select r.fieldname,d.* from EXT_REPORTCONFIG_METADATA r,EXT_REPORTCONFIG_VALUE d  where  d.vmid=r.mid and r.rid = #{rid}
         ) t group by  t.IDENTIFY  order by  sortvalue asc ) tt
     </select>
+
+    <select id="getMaxSortValue" resultType="int">
+        SELECT NVL(MAX( sortvalue),0) sortvalue FROM EXT_REPORTCONFIG_VALUE
+        WHERE vmid = #{mid}
+    </select>
+
+    <insert id="addSqjb" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="meta" separator="">
+          INSERT INTO EXT_REPORTCONFIG_VALUE  (vmid, fieldvalue, sortvalue, identify)
+          VALUES (#{mata.mid}, #{mata.fieldValue}, #{mata.sortValue}, #{mata.identify})
+        </foreach>
+        ;END;
+    </insert>
+
+    <delete id="deleteSqjb">
+        BEGIN
+        <foreach collection="list" item="item" separator=";">
+            DELETE FROM EXT_REPORTCONFIG_VALUE
+            WHERE vmid = #{item.mid} AND identify = #{item.identify}
+        </foreach>
+        ;END;
+    </delete>
 </mapper>
