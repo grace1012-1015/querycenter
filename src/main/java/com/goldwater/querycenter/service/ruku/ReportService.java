@@ -6,21 +6,29 @@ import com.goldwater.querycenter.common.util.Result;
 import com.goldwater.querycenter.dao.rw.ruku.ReportDao;
 import com.goldwater.querycenter.entity.ruku.ReportConfigMetaData;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 @Service
 public class ReportService {
     @Autowired
     private ReportDao reportDao;
+
+    private File xlsFile;
+
+    public File getXlsFile() {
+        return xlsFile;
+    }
+
+    public void setXlsFile(File xlsFile) {
+        this.xlsFile = xlsFile;
+    }
 
     public Result getSqjbList(String rid, int pageIndex, int length){
         Result rs = new Result();
@@ -290,5 +298,90 @@ public class ReportService {
         }
 
         return wb;
+    }
+
+    public void downloadXlsFile(String fileName, HttpServletResponse response, InputStream is) throws IOException {
+        ServletOutputStream outStream = null;
+
+        response.setContentType("application/x-msdownload");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        outStream = response.getOutputStream();
+        byte[] data=new byte[1024];
+
+        while(is.read(data)!=-1){
+            outStream.write(data);
+        }
+
+        outStream.flush();
+        outStream.close();
+
+        if(outStream!=null){
+            outStream.close();
+        }
+    }
+
+    public Result importSqjb(String rid, HttpServletResponse response) throws IOException {
+        Result rs = new Result();
+        Map resultMap = new HashMap<>();
+        PrintWriter out = response.getWriter();
+        FileInputStream fileIn;
+        long startTime=System.currentTimeMillis();
+        fileIn = new FileInputStream(xlsFile);
+
+        //根据指定的文件输入流导入Excel从而产生Workbook对
+        HSSFWorkbook wb0 = new HSSFWorkbook(fileIn);
+        //获取Excel文档中的第一个表单
+        Iterator<Row> rowIter = wb0.getSheetAt(0).rowIterator();
+
+        //对Sheet中的每一行进行迭代
+        List<Object[]> listParam=new ArrayList<Object[]>();
+        while(rowIter.hasNext()){
+            Row row=rowIter.next();
+            if(row.getRowNum()>0){
+                row.getCell(0).setCellType(HSSFCell.CELL_TYPE_STRING);
+                row.getCell(1).setCellType(HSSFCell.CELL_TYPE_STRING);
+                row.getCell(2).setCellType(HSSFCell.CELL_TYPE_STRING);
+
+                if(row.getCell(0).getStringCellValue().trim().equals("")){
+                    break;
+                }
+
+                Object[] obj=new Object[]{
+                        row.getCell(0).getStringCellValue().trim(),
+                        row.getCell(1).getStringCellValue().trim(),
+                        row.getCell(2).getStringCellValue().trim()};
+
+                listParam.add(obj);
+            }
+        }
+
+        List<Map> listMap = new ArrayList<>();
+
+        if(null != listParam && listParam.size() > 0){
+            for(int i=0 ;i<listParam.size();){
+                String lb = listParam.get(i)[0].toString();
+                String stnm = listParam.get(i)[1].toString();
+                String stcd = listParam.get(i)[2].toString();
+
+                listMap.addAll(getInsertList(lb, stnm, stcd, rid,++i));
+            }
+        }
+
+        if (reportDao.addSqjb(listMap) > 0){
+            resultMap.put("ERRNO", "0");
+
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "部分数据插入失败");
+
+            rs.setCode(Result.FAILURE);
+        }
+
+        rs.setData(resultMap);
+
+        return rs;
     }
 }

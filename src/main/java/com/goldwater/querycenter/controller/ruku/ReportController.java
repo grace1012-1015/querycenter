@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/report")
@@ -49,13 +52,12 @@ public class ReportController {
 
     /**
      * 导出数据
-     * @return
      */
     @PostMapping("/exportSqjb")
     @ResponseBody
     public void exportSqjb(@RequestParam(name = "rid", defaultValue = "") String rid,
-                            HttpServletRequest request,
-                            HttpServletResponse response){
+                           HttpServletRequest request,
+                           HttpServletResponse response){
         Result rs = new Result();
 
         try {
@@ -63,6 +65,48 @@ public class ReportController {
         }
         catch (Exception e) {
             rs.setCode(Result.FAILURE);
+        }
+    }
+
+    /**
+     * 下载模板
+     */
+    @PostMapping("/downloadXlsFile")
+    @ResponseBody
+    public void downloadXlsFile(@RequestParam(name = "fileName", defaultValue = "") String fileName,
+                                HttpServletRequest request,
+                                HttpServletResponse response){
+        Result rs = new Result();
+
+        try {
+            reportService.downloadXlsFile(fileName, response, ReportController.class.getClassLoader().getResourceAsStream(fileName));
+        }
+        catch (Exception e) {
+            rs.setCode(Result.FAILURE);
+        }
+    }
+
+    /**
+     * 下载模板
+     */
+    @PostMapping("/importSqjb")
+    @ResponseBody
+    public Result importSqjb(@RequestParam(name = "rid", defaultValue = "") String rid,
+                           HttpServletRequest request,
+                           HttpServletResponse response){
+        try {
+            return reportService.importSqjb(rid, response);
+        }
+        catch (Exception e) {
+            Result rs = new Result();
+            Map resultMap = new HashMap<>();
+
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "文档格式异常");
+
+            rs.setCode(Result.FAILURE);
+
+            return rs;
         }
     }
 }
