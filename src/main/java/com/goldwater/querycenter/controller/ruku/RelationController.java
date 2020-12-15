@@ -5,6 +5,11 @@ import com.goldwater.querycenter.service.ruku.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/relation")
 public class RelationController {
@@ -319,5 +324,46 @@ public class RelationController {
     @ResponseBody
     public Result deleteConfig(@RequestParam(name = "STCD_STTP", defaultValue = "") String stcd_sttp){
         return relationService.deleteConfig(stcd_sttp);
+    }
+
+    /**
+     * 批量导入
+     */
+    @PostMapping("/importSqjb")
+    @ResponseBody
+    public Result importSqjb(HttpServletRequest request,
+                             HttpServletResponse response){
+        try {
+            return relationService.importZqrl(response);
+        }
+        catch (Exception e) {
+            Result rs = new Result();
+            Map resultMap = new HashMap<>();
+
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "文档格式异常");
+
+            rs.setCode(Result.FAILURE);
+
+            return rs;
+        }
+    }
+
+    /**
+     * 下载模板
+     */
+    @PostMapping("/downloadXlsFile")
+    @ResponseBody
+    public void downloadXlsFile(@RequestParam(name = "fileName", defaultValue = "") String fileName,
+                                HttpServletRequest request,
+                                HttpServletResponse response){
+        Result rs = new Result();
+
+        try {
+            relationService.downloadXlsFile(fileName, response, ReportController.class.getClassLoader().getResourceAsStream(fileName));
+        }
+        catch (Exception e) {
+            rs.setCode(Result.FAILURE);
+        }
     }
 }

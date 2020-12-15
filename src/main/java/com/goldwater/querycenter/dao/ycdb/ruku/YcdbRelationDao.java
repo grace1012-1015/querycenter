@@ -36,4 +36,6 @@ public interface YcdbRelationDao {
     int updateConfig(@Param("stcd") String stcd, @Param("stnm") String stnm, @Param("sttp") String sttp, @Param("pmax5m") String pmax5m, @Param("pmax1h") String pmax1h, @Param("zmin") String zmin, @Param("zmax") String zmax, @Param("timect") String timect, @Param("srage") boolean srage, @Param("dye") boolean dye, @Param("wtmp") boolean wtmp, @Param("gate") boolean gate, @Param("volgate") boolean volgate, @Param("soil") boolean soil, @Param("velocity") boolean velocity, @Param("ott") boolean ott);
 
     int deleteConfig(@Param("list") List<Map> list);
+
+    int addAllZqrl(@Param("list") List<Map> list);
 }

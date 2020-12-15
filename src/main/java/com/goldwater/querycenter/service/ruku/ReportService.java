@@ -380,6 +380,12 @@ public class ReportService {
             rs.setCode(Result.FAILURE);
         }
 
+        long endTime =System.currentTimeMillis();
+        System.out.println("批量执行时间:"+((endTime-startTime)/1000)+"秒。");
+
+        out.flush();
+        out.close();
+
         rs.setData(resultMap);
 
         return rs;

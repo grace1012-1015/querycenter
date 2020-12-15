@@ -22,4 +22,6 @@ public interface RwRelationDao {
     int deleteZvarl(@Param("list") List<Map> list);
 
     String getStlc(@Param("stcd") String stcd);
+
+    int addAllZqrlToOrcl(@Param("list") List<Map> list);
 }

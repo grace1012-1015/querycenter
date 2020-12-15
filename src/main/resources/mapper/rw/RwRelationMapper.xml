@@ -49,4 +49,13 @@
     <select id="getStlc" resultType="string">
         SELECT STLC FROM ST_STBPRP_B WHERE STCD = #{stcd}
     </select>
+
+    <insert id="addAllZqrlToOrcl" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item" separator="">
+            INSERT INTO ST_ZQRL_B(STCD,BGTM,PTNO,Z,Q,LNNM,MODITIME)
+            VALUES (#{item.stcd}, #{item.bgtm}, #{item.ptno}, #{item.z}, #{item.q}, #{item.lnnm}, #{item.modiTime})
+        </foreach>
+        ;END;
+    </insert>
 </mapper>

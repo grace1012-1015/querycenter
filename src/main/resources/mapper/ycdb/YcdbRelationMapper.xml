@@ -183,4 +183,13 @@
         </foreach>
         ;END;
     </delete>
+
+    <insert id="addAllZqrl" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item" separator="">
+            INSERT INTO ST_ZQRL_B(STCD,YR,PTNO,Z,Q)
+            VALUES (#{item.stcd}, #{item.yr}, #{item.ptno}, #{item.z}, #{item.q})
+        </foreach>
+        ;END;
+    </insert>
 </mapper>

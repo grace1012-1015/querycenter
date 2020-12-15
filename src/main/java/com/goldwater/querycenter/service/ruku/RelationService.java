@@ -18,14 +18,22 @@ import com.goldwater.querycenter.entity.ruku.StConfig;
 import com.goldwater.querycenter.entity.ruku.vo.CosstVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZqrlRelationVo;
 import com.goldwater.querycenter.entity.ruku.vo.ZvarlRelationVo;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
 public class RelationService {
+    private File xlsFile;
+
     @Autowired
     private YcdbRelationDao ycdbRelationDao;
 
@@ -40,6 +48,14 @@ public class RelationService {
 
     @Autowired
     private RtuStationDao rtuStationDao;
+
+    public File getXlsFile() {
+        return xlsFile;
+    }
+
+    public void setXlsFile(File xlsFile) {
+        this.xlsFile = xlsFile;
+    }
 
     public Result queryZqrlList(String stcd, int pageIndex, int length){
         Result rs = new Result();
@@ -727,5 +743,122 @@ public class RelationService {
         }
 
         return rs;
+    }
+
+    public Result importZqrl(HttpServletResponse response) throws IOException {
+        Result rs = new Result();
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        PrintWriter out = response.getWriter();
+        FileInputStream fileIn;
+        File xls = null;
+        long startTime = System.currentTimeMillis();
+
+        xls=new File("D:\\ruku\\uploadFile\\"+UUID.randomUUID().toString().replaceAll("-","")+".xls");
+        xlsFile.renameTo(xls);
+        fileIn = new FileInputStream(xls);
+
+        //根据指定的文件输入流导入Excel从而产生Workbook对象
+        HSSFWorkbook wb0 = new HSSFWorkbook(fileIn);
+        //获取Excel文档中的第一个表单
+        Iterator<Row> rowIter = wb0.getSheetAt(0).rowIterator();
+        //对Sheet中的每一行进行迭代
+
+        List<Map> listParam=new ArrayList();
+        List<Map> orclParam=new ArrayList();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        int ptno = 0;
+        String stcdTemp = "";
+
+        while(rowIter.hasNext()){
+            Row row=rowIter.next();
+
+            if(row.getRowNum()>1){
+                try{
+                    row.getCell(0).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(1).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(2).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(3).setCellType(HSSFCell.CELL_TYPE_STRING);
+
+                    if(row.getCell(0).getStringCellValue().trim().equals("")){
+                        break;
+                    }
+                    if(!stcdTemp.equals(row.getCell(0).getStringCellValue())) {
+                        ptno = 0;
+                    }
+
+                    stcdTemp = row.getCell(0).getStringCellValue();
+                    String stcd = row.getCell(0).getStringCellValue();
+                    String year = row.getCell(1).getStringCellValue();
+                    double z = Float.parseFloat(row.getCell(2).getStringCellValue());
+                    double q = Float.parseFloat(row.getCell(3).getStringCellValue());
+
+                    Map obj = new HashMap();
+                    Map orclObj = new HashMap();
+
+                    obj.put("stcd", stcd);
+                    obj.put("yr", year);
+                    obj.put("ptno", ++ptno);
+                    obj.put("z", z);
+                    obj.put("q", q);
+
+                    orclObj.put("stcd", stcd);
+                    orclObj.put("bgtm", sdf.parse(year+"-01-01 08:00:00"));
+                    orclObj.put("ptno", ++ptno);
+                    orclObj.put("z", z);
+                    orclObj.put("q", q);
+                    orclObj.put("modiTime", new Date());
+
+                    orclParam.add(orclObj);
+                    listParam.add(obj);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        rwRelationDao.addAllZqrlToOrcl(orclParam);
+
+        if (ycdbRelationDao.addAllZqrl(listParam) > 0){
+            resultMap.put("ERRNO", "0");
+
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "部分数据插入失败");
+
+            rs.setCode(Result.FAILURE);
+        }
+
+        long endTime =System.currentTimeMillis();
+        System.out.println("批量执行时间:"+((endTime-startTime)/1000)+"秒。");
+
+        out.flush();
+        out.close();
+
+        rs.setData(resultMap);
+
+        return rs;
+    }
+
+    public void downloadXlsFile(String fileName, HttpServletResponse response, InputStream is) throws IOException {
+        ServletOutputStream outStream = null;
+
+        response.setContentType("application/x-msdownload");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        outStream = response.getOutputStream();
+        byte[] data=new byte[1024];
+
+        while(is.read(data)!=-1){
+            outStream.write(data);
+        }
+
+        outStream.flush();
+        outStream.close();
+
+        if(outStream!=null){
+            outStream.close();
+        }
     }
 }
