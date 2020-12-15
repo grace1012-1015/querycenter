@@ -87,7 +87,7 @@ public class ReportController {
     }
 
     /**
-     * 下载模板
+     * 批量导入
      */
     @PostMapping("/importSqjb")
     @ResponseBody
