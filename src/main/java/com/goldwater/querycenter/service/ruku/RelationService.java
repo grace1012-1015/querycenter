@@ -57,7 +57,7 @@ public class RelationService {
         this.xlsFile = xlsFile;
     }
 
-    public Result queryZqrlList(String stcd, int pageIndex, int length){
+    public Result getZqrlList(String stcd, int pageIndex, int length){
         Result rs = new Result();
 
         User u = SessionCache.get();
@@ -417,6 +417,25 @@ public class RelationService {
         return rs;
     }
 
+    public Result checkCosst(String stcd, String id){
+        Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
+
+        List<Map> list = ycdbRelationDao.getCosst(stcd, id);
+
+        if (list.size() > 0){
+            map.put("STATUS", false);
+        }
+        else {
+            map.put("STATUS", true);
+        }
+
+        rs.setData(map);
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
     public Result addStation(String stcd, String rtucd, String stcd8, String stnm, String rvnm, String bsnm, String hnnm, String protocol, String dtmel, String sttp, String telphone, String flag_hd, String center, String borrow){
         Result rs = new Result();
         RtuStation station = new RtuStation();
@@ -762,7 +781,6 @@ public class RelationService {
         //获取Excel文档中的第一个表单
         Iterator<Row> rowIter = wb0.getSheetAt(0).rowIterator();
         //对Sheet中的每一行进行迭代
-
         List<Map> listParam=new ArrayList();
         List<Map> orclParam=new ArrayList();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -819,6 +837,101 @@ public class RelationService {
         rwRelationDao.addAllZqrlToOrcl(orclParam);
 
         if (ycdbRelationDao.addAllZqrl(listParam) > 0){
+            resultMap.put("ERRNO", "0");
+
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "部分数据插入失败");
+
+            rs.setCode(Result.FAILURE);
+        }
+
+        long endTime =System.currentTimeMillis();
+        System.out.println("批量执行时间:"+((endTime-startTime)/1000)+"秒。");
+
+        out.flush();
+        out.close();
+
+        rs.setData(resultMap);
+
+        return rs;
+    }
+
+    public Result importZvarl(HttpServletResponse response) throws IOException {
+        Result rs = new Result();
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        PrintWriter out = response.getWriter();
+        FileInputStream fileIn;
+        File xls = null;
+        long startTime = System.currentTimeMillis();
+
+        xls=new File("D:\\ruku\\uploadFile\\"+UUID.randomUUID().toString().replaceAll("-","")+".xls");
+        xlsFile.renameTo(xls);
+        fileIn = new FileInputStream(xls);
+
+        //根据指定的文件输入流导入Excel从而产生Workbook对象
+        HSSFWorkbook wb0 = new HSSFWorkbook(fileIn);
+        //获取Excel文档中的第一个表单
+        Iterator<Row> rowIter = wb0.getSheetAt(0).rowIterator();
+        //对Sheet中的每一行进行迭代
+        List<Map> listParam=new ArrayList();
+        List<Map> orclParam=new ArrayList();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        while(rowIter.hasNext()){
+            Row row=rowIter.next();
+
+            if(row.getRowNum()>1){
+                try{
+                    row.getCell(0).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(1).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(2).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(3).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(4).setCellType(HSSFCell.CELL_TYPE_STRING);
+                    row.getCell(5).setCellType(HSSFCell.CELL_TYPE_STRING);
+
+                    if(row.getCell(0).getStringCellValue().trim().equals("")){
+                        break;
+                    }
+
+                    String stcd = row.getCell(0).getStringCellValue();
+                    String date = row.getCell(1).getStringCellValue()+"-01-01 08:00:00";
+                    int ptno = Integer.valueOf(row.getCell(2).getStringCellValue().toString());
+                    float rz = Float.parseFloat(row.getCell(3).getStringCellValue());
+                    float w = Float.parseFloat(row.getCell(4).getStringCellValue());
+                    float wsfa = Float.parseFloat(row.getCell(5).getStringCellValue());
+                    Date modiTime = new Date();
+
+                    Map obj = new HashMap();
+                    Map orclObj = new HashMap();
+
+                    obj.put("stcd", stcd);
+                    obj.put("ptno", ptno);
+                    obj.put("rz", rz);
+                    obj.put("w", w);
+                    obj.put("wsfa", wsfa);
+
+                    orclObj.put("stcd", stcd);
+                    orclObj.put("ptno", ptno);
+                    orclObj.put("rz", rz);
+                    orclObj.put("w", w);
+                    orclObj.put("wsfa", wsfa);
+                    orclObj.put("mstm", sdf.parse(date));
+                    orclObj.put("modiTime", modiTime);
+
+                    listParam.add(obj);
+                    orclParam.add(orclObj);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        rwRelationDao.addAllZvarlToOrcl(orclParam);
+
+        if (ycdbRelationDao.addAllZvarl(listParam) > 0){
             resultMap.put("ERRNO", "0");
 
             rs.setCode(Result.SUCCESS);

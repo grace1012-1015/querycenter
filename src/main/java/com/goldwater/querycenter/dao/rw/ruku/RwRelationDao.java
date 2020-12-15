@@ -24,4 +24,6 @@ public interface RwRelationDao {
     String getStlc(@Param("stcd") String stcd);
 
     int addAllZqrlToOrcl(@Param("list") List<Map> list);
+
+    int addAllZvarlToOrcl(@Param("list") List<Map> list);
 }

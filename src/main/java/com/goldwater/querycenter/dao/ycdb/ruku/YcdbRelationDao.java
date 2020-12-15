@@ -27,6 +27,8 @@ public interface YcdbRelationDao {
 
     List<CosstVo> getCosstList(@Param("stdm") String stdm, @Param("id") String id);
 
+    List<Map> getCosst(@Param("stcd") String stcd, @Param("id") String id);
+
     List<StConfig> getConfigList(@Param("stdm") String stdm, @Param("sttp") String sttp);
 
     StConfig getConfig(@Param("stcd") String stcd, @Param("sttp") String sttp);
@@ -38,4 +40,6 @@ public interface YcdbRelationDao {
     int deleteConfig(@Param("list") List<Map> list);
 
     int addAllZqrl(@Param("list") List<Map> list);
+
+    int addAllZvarl(@Param("list") List<Map> list);
 }

@@ -19,12 +19,12 @@ public class RelationController {
     /**
      * 水位流量关系数据查询
      */
-    @PostMapping("/queryZqrlList")
+    @PostMapping("/getZqrlList")
     @ResponseBody
-    public Result queryZqrlList(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+    public Result getZqrlList(@RequestParam(name = "STCD", defaultValue = "") String stcd,
                                 @RequestParam(name = "page", defaultValue = "1") int pageIndex,
                                 @RequestParam(name = "limit", defaultValue = "10") int length){
-        return relationService.queryZqrlList(stcd, pageIndex, length);
+        return relationService.getZqrlList(stcd, pageIndex, length);
     }
 
     /**
@@ -186,6 +186,16 @@ public class RelationController {
     }
 
     /**
+     * 检查新增测站和分类关系数据是否存在
+     */
+    @PostMapping("/checkCosst")
+    @ResponseBody
+    public Result checkCosst(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                             @RequestParam(name = "ID", defaultValue = "") String id){
+        return relationService.checkCosst(stcd, id);
+    }
+
+    /**
      * 添加新测站信息
      *
      */
@@ -329,12 +339,35 @@ public class RelationController {
     /**
      * 批量导入
      */
-    @PostMapping("/importSqjb")
+    @PostMapping("/importZqrl")
     @ResponseBody
-    public Result importSqjb(HttpServletRequest request,
+    public Result importZqrl(HttpServletRequest request,
                              HttpServletResponse response){
         try {
             return relationService.importZqrl(response);
+        }
+        catch (Exception e) {
+            Result rs = new Result();
+            Map resultMap = new HashMap<>();
+
+            resultMap.put("ERRNO", "ERR01");
+            resultMap.put("ERRMAS", "文档格式异常");
+
+            rs.setCode(Result.FAILURE);
+
+            return rs;
+        }
+    }
+
+    /**
+     * 批量导入
+     */
+    @PostMapping("/importZvarl")
+    @ResponseBody
+    public Result importZvarl(HttpServletRequest request,
+                             HttpServletResponse response){
+        try {
+            return relationService.importZvarl(response);
         }
         catch (Exception e) {
             Result rs = new Result();

@@ -58,4 +58,13 @@
         </foreach>
         ;END;
     </insert>
+
+    <insert id="addAllZvarlToOrcl" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item" separator="">
+            INSERT INTO ST_ZVARL_B(STCD,PTNO,RZ,W,WSFA,MSTM,MODITIME)
+            VALUES (#{item.stcd}, #{item.ptno}, #{item.rz}, #{item.w}, #{item.wsfa}, #{item.mstm}, #{item.modiTime})
+        </foreach>
+        ;END;
+    </insert>
 </mapper>

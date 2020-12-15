@@ -130,6 +130,10 @@
         </if>
     </select>
 
+    <select id="getCosst" resultType="java.util.Map">
+        SELECT * FROM ST_COSST_B WHERE STCD = #{stcd} AND ID = #{id}
+    </select>
+
     <select id="getConfigList" resultMap="result_config">
         SELECT A.STCD,A.STNM,A.STTP,A.PMAX5M,A.PMAX1H,A.ZMIN,A.ZMAX,A.SRAGE,A.TIMECT,A.DYE,A.WTMP,A.GATE,A.VOLGATE,
         A.SOIL,A.VELOCITY,A.OTT FROM ST_STCONFIG A WHERE 1=1
@@ -189,6 +193,15 @@
         <foreach collection="list" item="item" separator="">
             INSERT INTO ST_ZQRL_B(STCD,YR,PTNO,Z,Q)
             VALUES (#{item.stcd}, #{item.yr}, #{item.ptno}, #{item.z}, #{item.q})
+        </foreach>
+        ;END;
+    </insert>
+
+    <insert id="addAllZvarl" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item" separator="">
+            INSERT INTO ST_ZVARL_B(STCD,PTNO,RZ,W,WSFA)
+            VALUES (#{item.stcd}, #{item.ptno}, #{item.rz}, #{item.w}, #{item.wsfa})
         </foreach>
         ;END;
     </insert>
