@@ -67,6 +67,31 @@ public class FlowService {
         return rs;
     }
 
+    public Result queryFluxFm(String stcd, String startTm, String endTm){
+        Result rs = new Result();
+
+        User u = SessionCache.get();
+        String userId = u.getUserCode();
+
+        List<Priviliges> rightList = rightDao.getRightByUserId(userId);
+
+        List<FluxR5Vo> list = new ArrayList<>();
+
+        if(rightList.size() > 0 && Integer.parseInt(rightList.get(0).getLevel())==3){
+            list = flowDao.queryFlux_R5_Level3(rightList.get(0).getPriviligeId(), stcd, startTm, endTm);
+        }
+        else {
+            list = flowDao.queryFlux_R5(stcd, startTm, endTm);
+        }
+
+        PageInfo p = new PageInfo<>(list);
+        rs.setData(p);
+        rs.setTotal(Integer.parseInt(p.getTotal() + ""));
+        rs.setCode(Result.SUCCESS);
+
+        return rs;
+    }
+
     public Result getPickFluxList(String stcd, String enterFlow, int pageIndex, int length){
         Result rs = new Result();
         PageHelper.startPage(pageIndex, length);
@@ -83,20 +108,26 @@ public class FlowService {
 
     public Result addPickFlux(String stcd, String stnm, String enterFlow){
         Result rs = new Result();
-
         PickFlux pf = new PickFlux();
+        Map map = new HashMap();
 
         pf.setStcd(stcd);
         pf.setStnm(stnm);
         pf.setEnterFlow(enterFlow);
 
         if (flowDao.insertSelective(pf) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加开关泵闸信息失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("添加开关泵闸信息失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -128,32 +159,46 @@ public class FlowService {
 
     public Result updatePickFlow(String stcd, String stnm, String enterFlow, String oldStcd, String oldStnm){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (flowDao.updatePickFlow(stcd, stnm, enterFlow, oldStcd, oldStnm) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "修改开关泵闸信息失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("修改开关泵闸信息失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result delPickFlow(String ids){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if(!ids.equals("")){
             List<Map> list = getDelPickFlows(ids);
 
             flowDao.delPickFlow(list);
 
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "删除开关泵闸信息失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("删除开关泵闸信息失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }

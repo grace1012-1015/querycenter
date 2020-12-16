@@ -49,22 +49,30 @@ public class ReportService {
 
     public Result addSqjb(String lb, String stnm, String stcd, String rid){
         Result rs = new Result();
+        Map map = new HashMap();
 
         List<Map> list = getInsertList(lb, stnm, stcd, rid, 1);
 
         if (reportDao.addSqjb(list) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加数据失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("添加数据失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result deleteSqjb(String rid, String identifys){
         Result rs = new Result();
+        Map map = new HashMap();
 
         List<ReportConfigMetaData> metaList = reportDao.getReportConfigMetaData(rid);
 
@@ -85,17 +93,20 @@ public class ReportService {
             }
 
             if (reportDao.deleteSqjb(list) > 0){
-                Map<String, Object> map = new HashMap<String, Object>();
                 map.put("bol", true);
+                map.put("ERRNO", "0");
 
-                rs.setData(map);
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除数据失败");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除数据失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }

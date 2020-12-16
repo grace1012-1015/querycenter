@@ -30,9 +30,9 @@ public class RainController {
     /**
      * 雨量过程线数据查询
      */
-    @PostMapping("/queryRainChart")
+    @PostMapping("/queryChart")
     @ResponseBody
-    public Result queryRainChart(@RequestParam(name = "stdm", defaultValue = "") String stcd,
+    public Result queryChart(@RequestParam(name = "stdm", defaultValue = "") String stcd,
                               @RequestParam(name = "time", defaultValue = "") String time){
         return rainService.queryRainChart(stcd, time);
     }

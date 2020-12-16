@@ -28,6 +28,17 @@ public class FlowController {
     }
 
     /**
+     * 查询五分钟流量
+     */
+    @PostMapping("/queryFluxFm")
+    @ResponseBody
+    public Result queryFluxFm(@RequestParam(name = "STCD", defaultValue = "") String stcd,
+                              @RequestParam(name = "STARTTM", defaultValue = "") String startTm,
+                              @RequestParam(name = "ENDTM", defaultValue = "") String endTm){
+        return flowService.queryFluxFm(stcd, startTm, endTm);
+    }
+
+    /**
      * 查询泵闸站开关情况
      */
     @PostMapping("/getPickFluxList")

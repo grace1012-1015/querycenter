@@ -86,8 +86,8 @@ public class UserService {
 
     public Result addUser(String uCode, String uPwd, String uCompany, String uCbrief, String uCtel, String uName, String uEmail, String uPhone, String uKey, String uState, String uRole){
         Result rs = new Result();
-
         User u = new User();
+        Map map = new HashMap();
 
         u.setUserCode(uCode);
         u.setUserPwd(Crypt.md5Encrypt(uPwd));
@@ -102,13 +102,19 @@ public class UserService {
         u.setUserRole(uRole);
 
         if (userDao.insertSelective(u) > 0){
-            rs.setData(u);
+            map.put("ERRNO", "0");
+            map.put("user", u);
+
             rs.setCode(Result.SUCCESS);
         }
         else{
-            rs.setMsg("新增用户失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "新增用户失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -116,6 +122,7 @@ public class UserService {
     public Result updateUser(String uCode, String uPwd, String uCompany, String uCbrief, String uCtel, String uName, String uEmail, String uPhone, String uKey, String uState, String uRole, String privilegeId){
         Result rs = new Result();
         User u = new User();
+        Map map = new HashMap();
 
         if (StringUtil.isBlank(privilegeId)){
             rs.setCode(Result.FAILURE);
@@ -143,33 +150,47 @@ public class UserService {
                 rightDao.addUserPrivilege(uCode, privilegeId);
             }
 
-            rs.setData(u);
+            map.put("ERRNO", "0");
+            map.put("user", u);
+
             rs.setCode(Result.SUCCESS);
         }
         else{
-            rs.setMsg("更新用户失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "更新用户失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result updateStatus(String uCodes, String uState){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (userDao.updateStatus(uState, ToolkitsBase.getQueryStcds("UCODE", uCodes)) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
-            rs.setMsg("更新用户状态失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "更新用户状态失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result changePwd(String uCode, String oldPwd, String newPwd){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if(getUpwd(uCode, "").equals(Crypt.md5Encrypt(oldPwd))){
             User u = new User();
@@ -178,18 +199,26 @@ public class UserService {
             u.setUserPwd(Crypt.md5Encrypt(newPwd));
 
             if (userDao.updateByPrimaryKeySelective(u) > 0){
-                rs.setData(u);
+                map.put("ERRNO", "0");
+                map.put("user", u);
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
-                rs.setMsg("修改用户密码失败！");
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "修改用户密码失败");
+
                 rs.setCode(Result.FAILURE);
             }
         }
         else{
-            rs.setMsg("原密码错误！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "原密码错误");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -210,14 +239,21 @@ public class UserService {
 
     public Result dropAdmin(String uCodes){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (userDao.deleteUsers(ToolkitsBase.getQueryStcds("UCODE", uCodes)) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
-            rs.setMsg("删除管理员失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "删除管理员失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }

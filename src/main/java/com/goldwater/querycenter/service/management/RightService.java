@@ -235,6 +235,7 @@ public class RightService {
     public Result addRights(String name, String level, String ordr, String menus, String stations){
         Result rs = new Result();
         Priviliges p = new Priviliges();
+        Map map = new HashMap();
 
         String privilegeId = UUID.randomUUID().toString().replace("-","");
 
@@ -246,12 +247,18 @@ public class RightService {
         if (rightDao.insertSelective(p) > 0){
             addPrvMenuAndStation(privilegeId, menus, stations);
 
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "新增权限失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("新增权限失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -259,6 +266,7 @@ public class RightService {
     public Result updateRights(String privilegeId, String name, String level, String ordr, String menus, String stations){
         Result rs = new Result();
         Priviliges p = new Priviliges();
+        Map map = new HashMap();
 
         p.setPriviligeId(privilegeId);
         p.setName(name);
@@ -271,12 +279,18 @@ public class RightService {
 
             addPrvMenuAndStation(privilegeId, menus, stations);
 
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "修改权限失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("修改权限失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -291,12 +305,24 @@ public class RightService {
 
     public Result removeRights(String privilegeId){
         Result rs = new Result();
+        Map map = new HashMap();
 
-        rightDao.removePrvMenu(privilegeId);
-        rightDao.removePrvStation(privilegeId);
-        rightDao.removeUserRight(privilegeId);
+        if (rightDao.removePrvMenu(privilegeId) > 0) {
+            rightDao.removePrvStation(privilegeId);
+            rightDao.removeUserRight(privilegeId);
 
-        rs.setCode(Result.SUCCESS);
+            map.put("ERRNO", "0");
+
+            rs.setCode(Result.SUCCESS);
+        }
+        else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "删除权限失败");
+
+            rs.setCode(Result.FAILURE);
+        }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -304,42 +330,63 @@ public class RightService {
     public Result addMenu(String menuNm, String content, String ordr, String prt_id){
         Result rs = new Result();
         String menuId=UUID.randomUUID().toString().replace("-","");
+        Map map = new HashMap();
 
         if (rightDao.addMenu(menuId, menuNm, content, ordr, prt_id) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "新增菜单失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("新增菜单失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result updateMenu(String menuId, String menuNm, String content, String ordr){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (rightDao.updateMenu(menuId, menuNm, content, ordr) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "修改菜单失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("修改菜单失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result removeMenu(String menuId){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (rightDao.removeMenu(Arrays.asList(menuId.split(","))) > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "删除菜单失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("删除菜单失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }

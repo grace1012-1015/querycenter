@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -24,6 +26,7 @@ public class CallerService {
 
         if (!rtucds.equals("")) {
             String rtucdslist[] = rtucds.split(",");
+            Map map = new HashMap();
 
             for (int i = 0; i < rtucdslist.length; i++) {
                 RtuCaller rc = new RtuCaller();
@@ -37,7 +40,13 @@ public class CallerService {
                 rc.setParams(params);
                 rc.setCmdTime(df.format(new Date()));
 
-                callerDao.insertSelective(rc);
+                if (callerDao.insertSelective(rc) > 0){
+                    map.put("ERRNO", "0");
+                }
+                else{
+                    map.put("ERRNO", "ERR01");
+                    map.put("ERRMAS", "部分数据新增失败");
+                }
 
                 String tempStr = params.replace("-","");
                 String start = tempStr.substring(2,8);
@@ -49,6 +58,7 @@ public class CallerService {
                 setCallerRedisData(rtucd, id, func, "4$"+ start + "-" + end);
             }
 
+            rs.setData(map);
             rs.setCode(Result.SUCCESS);
         }
         else{
@@ -61,6 +71,7 @@ public class CallerService {
 
     public Result jiaoshi(String params){
         Result rs = new Result();
+        Map m = new HashMap();
 
         if (!params.equals("")) {
             String[] paramslist = params.split(";"); // 多选
@@ -69,7 +80,7 @@ public class CallerService {
                 String param = paramslist[i];
 
                 if (!"".equals(param)) {
-                    addJiaoshiOrRealTime(param, "3");
+                    m = addJiaoshiOrRealTime(param, "3");
                 }
             }
 
@@ -79,12 +90,15 @@ public class CallerService {
             rs.setMsg("PARAMS不能为空！");
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(m);
 
         return rs;
     }
 
     public Result realTime(String params){
         Result rs = new Result();
+        Map m = new HashMap();
 
         if (!params.equals("")) {
             String[] paramslist = params.split(";"); // 多选
@@ -93,7 +107,7 @@ public class CallerService {
                 String param = paramslist[i];
 
                 if (!"".equals(param)) {
-                    addJiaoshiOrRealTime(param, "2");
+                    m = addJiaoshiOrRealTime(param, "2");
                 }
             }
 
@@ -104,12 +118,15 @@ public class CallerService {
             rs.setCode(Result.FAILURE);
         }
 
+        rs.setData(m);
+
         return rs;
     }
 
-    private void addJiaoshiOrRealTime(String param, String fileContent){
+    private Map addJiaoshiOrRealTime(String param, String fileContent){
         String[] cds = param.split(",");
         RtuCaller rc = new RtuCaller();
+        Map map = new HashMap();
 
         String id = UUID.randomUUID().toString();
         String rtucd = cds[0];
@@ -119,9 +136,17 @@ public class CallerService {
         rc.setRtucd(rtucd);
         rc.setFunc(func);
 
-        callerDao.insertSelective(rc);
+        if (callerDao.insertSelective(rc) > 0){
+            map.put("ERRNO", "0");
+        }
+        else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "部分数据新增失败");
+        }
 
         setCallerRedisData(rtucd, id, func, fileContent);
+
+        return map;
     }
 
     private void setCallerRedisData(String stcd, String id, String funcCode, String hexMessage){

@@ -87,6 +87,7 @@ public class RelationService {
     public Result addZqrl(String stcd, String ptno, String z, String q){
         Result rs = new Result();
         int result = 0;
+        Map map = new HashMap();
 
         // 点序号不为空时说明是更新数据
         if(ptno != null && !StringUtil.isBlank(ptno)){
@@ -110,12 +111,18 @@ public class RelationService {
         }
 
         if (result > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加水位流量关系失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("添加水位流量关系失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -131,6 +138,7 @@ public class RelationService {
 
     public Result deleteZqrl(String stcd_ptno){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (!"".equals(stcd_ptno) && !"null".equals(stcd_ptno)) {
             String[] stcd_ptnoarr = stcd_ptno.split(";");
@@ -148,13 +156,19 @@ public class RelationService {
             }
 
             if (ycdbRelationDao.deleteZqrl(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除水位流量关系失败");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除水位流量关系失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -189,6 +203,7 @@ public class RelationService {
     public Result addZvarl(String stcd, String ptno, String rz, String w, String wsfa){
         Result rs = new Result();
         int result = 0;
+        Map map = new HashMap();
 
         // 点序号不为空时说明是更新数据
         if(ptno != null && !StringUtil.isBlank(ptno)){
@@ -212,12 +227,18 @@ public class RelationService {
         }
 
         if (result > 0){
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加水位库容关系失败");
+
             rs.setCode(Result.FAILURE);
-            rs.setMsg("添加水位库容关系失败！");
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -233,6 +254,7 @@ public class RelationService {
 
     public Result deleteZvarl(String stcd_ptno){
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (!"".equals(stcd_ptno) && !"null".equals(stcd_ptno)) {
             String[] stcd_ptnoarr = stcd_ptno.split(";");
@@ -250,19 +272,27 @@ public class RelationService {
             }
 
             if (rwRelationDao.deleteZvarl(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除水位库容关系失败");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除水位库容关系失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result addCosst(String id, String stcd, String stnm, String arnm, String  ordr){
         Result rs = new Result();
+        int result = 0;
+        Map map = new HashMap();
 
         try {
             Cosst cosst = new Cosst();
@@ -284,7 +314,7 @@ public class RelationService {
             if (!StringUtil.isBlank(ordr)) {
                 cosst.setOrdr(ordr);
 
-                cosstDao.updateCosst(id, stcd, stnm, arnm, ordr);
+                result = cosstDao.updateCosst(id, stcd, stnm, arnm, ordr);
             } else {
                 String ptnosql = cosstDao.getMaxOrdr(stcd, id);
 
@@ -296,16 +326,30 @@ public class RelationService {
 
                 cosst.setOrdr(ptnosql);
 
-                cosstDao.insertSelective(cosst);
+                result = cosstDao.insertSelective(cosst);
             }
 
-            rs.setCode(Result.SUCCESS);
+            if (result > 0){
+                map.put("ERRNO", "0");
+
+                rs.setCode(Result.SUCCESS);
+            }
+            else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "添加测站和分类关系信息失败");
+
+                rs.setCode(Result.FAILURE);
+            }
         }
         catch(Exception ex)
         {
-            rs.setMsg("新增测站和分类失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "添加测站和分类关系信息失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -326,6 +370,7 @@ public class RelationService {
 
     public Result deleteCosst(String stcd_id) {
         Result rs = new Result();
+        Map map = new HashMap();
 
         if (!StringUtil.isBlank(stcd_id)) {
             List<Map> list = new ArrayList<>();
@@ -342,12 +387,19 @@ public class RelationService {
             }
 
             cosstDao.deleteCosst(list);
+
+            map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
-            rs.setMsg("删除测站和分类失败！");
+            map.put("ERRNO", "ERR01");
+            map.put("ERRMAS", "删除测站和分类失败");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
@@ -480,11 +532,13 @@ public class RelationService {
 
         if (rtuStationDao.insertSelective(station) >0){
             map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
             map.put("ERRNO", "ERR01");
             map.put("ERRMAS", "添加新测站信息失败！");
+
             rs.setCode(Result.FAILURE);
         }
 
@@ -523,19 +577,24 @@ public class RelationService {
 
         if (rtuStationDao.updateStation(stcd, rtucd, stcd8, stnm, rvnm, bsnm, hnnm, protocol, dt, sttp, telphone, flag_hd, center, borrow, flag_rain, flag_water) > 0){
             map.put("ERRNO", "0");
+
             rs.setCode(Result.SUCCESS);
         }
         else{
             map.put("ERRNO", "ERR01");
             map.put("ERRMAS", "修改测站信息失败！");
+
             rs.setCode(Result.FAILURE);
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result delStation(String ids){
         Result rs = new Result();
+        Map<String, Object> map = new HashMap<String, Object>();
 
         if (!"".equals(ids) && !"null".equals(ids)) {
             String[] idlist = ids.split(";");
@@ -554,19 +613,26 @@ public class RelationService {
             }
 
             if (rtuStationDao.delStation(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除测站信息失败！");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除测站信息失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result customStation(String stcd_id){
         Result rs = new Result();
+        Map<String, Object> map = new HashMap<String, Object>();
 
         if (!"".equals(stcd_id) && !"null".equals(stcd_id)) {
             String[] stcd_ptnoarr = stcd_id.split(";");
@@ -583,19 +649,26 @@ public class RelationService {
             }
 
             if (rtuStationDao.customStation(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "添加自定义站点信息失败！");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("添加自定义站点信息失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }
 
     public Result deleteCustom(String stcd_id){
         Result rs = new Result();
+        Map<String, Object> map = new HashMap<String, Object>();
 
         if (!"".equals(stcd_id) && !"null".equals(stcd_id)) {
             String[] stcd_ptnoarr = stcd_id.split(";");
@@ -612,11 +685,15 @@ public class RelationService {
             }
 
             if (rtuStationDao.deleteCustom(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除自定义站点信息失败！");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除自定义站点信息失败！");
             }
         }
 
@@ -721,7 +798,6 @@ public class RelationService {
         rs.setData(map);
         rs.setCode(Result.SUCCESS);
 
-
         return rs;
     }
 
@@ -736,6 +812,7 @@ public class RelationService {
 
     public Result deleteConfig(String stcd_sttp){
         Result rs = new Result();
+        Map<String,Object> map = new HashMap<String,Object>();
 
         if (!"".equals(stcd_sttp) && !"null".equals(stcd_sttp)) {
             String[] idlist = stcd_sttp.split(";");
@@ -753,13 +830,19 @@ public class RelationService {
             }
 
             if (ycdbRelationDao.deleteConfig(list) > 0){
+                map.put("ERRNO", "0");
+
                 rs.setCode(Result.SUCCESS);
             }
             else{
+                map.put("ERRNO", "ERR01");
+                map.put("ERRMAS", "删除测站和分类关系信息失败！");
+
                 rs.setCode(Result.FAILURE);
-                rs.setMsg("删除测站和分类关系信息失败！");
             }
         }
+
+        rs.setData(map);
 
         return rs;
     }
