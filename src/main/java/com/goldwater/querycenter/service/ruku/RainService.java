@@ -95,6 +95,7 @@ public class RainService {
             outStream = response.getOutputStream();
             wb.write(outStream);
             outStream.flush();
+            outStream.close();
         }
     }
 

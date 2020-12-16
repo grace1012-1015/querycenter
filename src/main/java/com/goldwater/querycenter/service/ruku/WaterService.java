@@ -152,6 +152,7 @@ public class WaterService {
             outStream = response.getOutputStream();
             wb.write(outStream);
             outStream.flush();
+            outStream.close();
         }
     }
 
@@ -277,6 +278,7 @@ public class WaterService {
             outStream = response.getOutputStream();
             wb.write(outStream);
             outStream.flush();
+            outStream.close();
         }
     }
 
@@ -402,6 +404,7 @@ public class WaterService {
             outStream = response.getOutputStream();
             wb.write(outStream);
             outStream.flush();
+            outStream.close();
         }
     }
 
@@ -529,6 +532,7 @@ public class WaterService {
             outStream = response.getOutputStream();
             wb.write(outStream);
             outStream.flush();
+            outStream.close();
         }
     }
 

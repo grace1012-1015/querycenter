@@ -172,6 +172,7 @@ public class ReportService {
         outStream = response.getOutputStream();
         wb.write(outStream);
         outStream.flush();
+        outStream.close();
     }
 
     private String getExportSqjbFileName(String rid){
