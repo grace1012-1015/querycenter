@@ -6,6 +6,9 @@ import com.goldwater.querycenter.service.ruku.JktjService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/jktj")
 public class JktjController {
@@ -93,5 +96,24 @@ public class JktjController {
                                    @RequestParam(name = "time", defaultValue = "") String time,
                                    @RequestParam(name = "cosId", defaultValue = "") String cosId){
         return jktjService.queryQbStationTJ(stcd, time, cosId);
+    }
+
+    @PostMapping("/exportSwRainTJ")
+    @ResponseBody
+    public void exportSwRainTJ(@RequestParam(name = "stcd", defaultValue = "") String stcd,
+                               @RequestParam(name = "time", defaultValue = "") String time,
+                               @RequestParam(name = "type", defaultValue = "") String type,
+                               @RequestParam(name = "interval", defaultValue = "") String interval,
+                               @RequestParam(name = "filename", defaultValue = "") String filename,
+                               HttpServletRequest request,
+                               HttpServletResponse response){
+        Result rs = new Result();
+
+        try {
+            jktjService.exportSwRainTJ(stcd, time, type, interval, filename, response);
+        }
+        catch (Exception e) {
+            rs.setCode(Result.FAILURE);
+        }
     }
 }

@@ -12,9 +12,14 @@ import com.goldwater.querycenter.dao.ycdb.ruku.YcdbJktjDao;
 import com.goldwater.querycenter.entity.management.Priviliges;
 import com.goldwater.querycenter.entity.management.User;
 import com.goldwater.querycenter.entity.ruku.vo.CosstVo;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -486,5 +491,105 @@ public class JktjService {
         }
 
         return cosstDao.getSwRainCosst(stcd, type, custom, addvcd);
+    }
+
+    public void exportSwRainTJ(String stcd, String time, String type, String interval, String filename, HttpServletResponse response) throws IOException {
+        Result r = querySwRainTJ(stcd, time, type, interval);
+
+        if (r.isSuccess()){
+            List<Map<String,Object>> list = (List<Map<String, Object>>) r.getData();
+            String fileName = time + ("00".equals(interval)?" 日雨量——":" " + interval + "点——") + new String(filename.getBytes("ISO-8859-1"), "UTF-8");
+
+            HSSFWorkbook wb = getSwRainTJWb(list, fileName);
+
+            ServletOutputStream outStream = null;
+
+            response.setContentType("application/x-msdownload");
+            response.setHeader("Content-Disposition", "attachment; filename="+ new String(filename.getBytes("gb2312"), "ISO-8859-1")
+                    + ".xls");
+            outStream = response.getOutputStream();
+            wb.write(outStream);
+            outStream.flush();
+            outStream.close();
+        }
+    }
+
+    private HSSFWorkbook getSwRainTJWb(List<Map<String,Object>> valuelist, String filename) {
+        HSSFWorkbook wb = new HSSFWorkbook();
+
+        HSSFSheet sheet = wb.createSheet();
+        sheet.setDefaultColumnWidth(32);
+        sheet.setDefaultRowHeightInPoints(35);;
+
+        // 标题样式
+        HSSFCellStyle titleStyle = wb.createCellStyle();
+        titleStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        titleStyle.setVerticalAlignment(HSSFCellStyle.ALIGN_CENTER);
+        // 单元格标题样式
+        HSSFCellStyle columnStyle = wb.createCellStyle();
+        columnStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        HSSFFont f = wb.createFont();
+        f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);// 加粗
+        columnStyle.setFont(f);
+        titleStyle.setFont(f);
+        // 单元格列内容的样式
+        HSSFCellStyle valueStyle = wb.createCellStyle();
+        valueStyle.setVerticalAlignment(HSSFCellStyle.ALIGN_LEFT);// 垂直居中
+        valueStyle.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+
+        String[] cellNameArray = new String[] { "测站编码","测站名称","时段累计雨量","测站地址"};
+        String[] cellColumnArray = new String[] { "STCD", "STNM", "TJ","STLC"};
+
+        HSSFRow row = sheet.createRow((short) 0);
+        row.setHeight((short) 500);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, cellNameArray.length-1));
+
+        // 第一行（标题）
+        HSSFCell ce = row.createCell(0);
+
+        // 设置标题
+        ce.setCellValue(filename);
+        ce.setCellStyle(titleStyle);
+        // 设置列名
+        HSSFRow row2 = sheet.createRow((short) 1);
+
+        // 设置列名
+        for (int i = 0; i < cellNameArray.length; i++) {
+            HSSFCell cellfield = row2.createCell(i);
+            cellfield.setCellStyle(columnStyle);
+            cellfield.setCellValue(cellNameArray[i]);
+        }
+
+        String coulumnName = null;
+        Map valueMap = null;
+
+        for (int i = 0; i < valuelist.size(); i++) {
+            HSSFRow rowtemp = sheet.createRow((i + 2));
+            valueMap = valuelist.get(i);
+            for (int j = 0; j < cellColumnArray.length; j++) {
+                HSSFCell cellvalue = rowtemp.createCell(j);
+                coulumnName = cellColumnArray[j];
+                cellvalue.setCellStyle(valueStyle);
+                Iterator<Map.Entry<String,Object>> it1 = valueMap.entrySet().iterator();
+                boolean flag=true;
+                while (it1.hasNext()) {
+                    Map.Entry<String, Object> entry = it1.next();
+                    if(coulumnName.equals(entry.getKey().trim())){
+                        try {
+                            cellvalue.setCellValue(entry.getValue()==null?null:entry.getValue().toString());
+                            flag=false;
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if(flag){
+                    cellvalue.setCellValue("");
+                }
+            }
+        }
+
+        return wb;
     }
 }
