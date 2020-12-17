@@ -231,7 +231,7 @@ public class JktjService {
         return rs;
     }
 
-    public Result querySwRainTJ(String stcd, String searchTime, String type, String interval){
+    public Result querySwRainTJ(String stcd, String searchTime, String type, String interval, int start, int limit){
         Result rs = new Result();
         List<CosstVo> listCosst = getSwjkCosst(stcd, type, "", "");
 
@@ -255,7 +255,7 @@ public class JktjService {
             }
 
             rs.setCode(Result.SUCCESS);
-            rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 10));
+            rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), start, limit));
         }
         catch (Exception ex){
             rs.setCode(Result.FAILURE);
@@ -265,7 +265,7 @@ public class JktjService {
         return rs;
     }
 
-    public Result querySwRainTJ2(String stcd, String type, String interval){
+    public Result querySwRainTJ2(String stcd, String type, String interval, int start, int limit){
         Result rs = new Result();
         List<CosstVo> listCosst = getSwjkCosst(stcd, type, "", "");
 
@@ -291,7 +291,7 @@ public class JktjService {
         }
 
         rs.setCode(Result.SUCCESS);
-        rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), 1, 10));
+        rs.setData(sortMap((List<Map<String, Object>>) BeanUtil.objectToMap(listCosst), start, limit));
 
         return rs;
     }
@@ -493,8 +493,8 @@ public class JktjService {
         return cosstDao.getSwRainCosst(stcd, type, custom, addvcd);
     }
 
-    public void exportSwRainTJ(String stcd, String time, String type, String interval, String filename, HttpServletResponse response) throws IOException {
-        Result r = querySwRainTJ(stcd, time, type, interval);
+    public void exportSwRainTJ(String stcd, String time, String type, String interval, String filename, HttpServletResponse response, int start, int limit) throws IOException {
+        Result r = querySwRainTJ(stcd, time, type, interval, start, limit);
 
         if (r.isSuccess()){
             List<Map<String,Object>> list = (List<Map<String, Object>>) r.getData();

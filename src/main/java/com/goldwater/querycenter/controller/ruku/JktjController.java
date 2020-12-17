@@ -72,8 +72,10 @@ public class JktjController {
     public Result querySwRainTJ(@RequestParam(name = "stcd", defaultValue = "") String stcd,
                                 @RequestParam(name = "time", defaultValue = "") String time,
                                 @RequestParam(name = "type", defaultValue = "") String type,
-                                @RequestParam(name = "interval", defaultValue = "") String interval){
-        return jktjService.querySwRainTJ(stcd, time, type, interval);
+                                @RequestParam(name = "interval", defaultValue = "") String interval,
+                                @RequestParam(name = "start", defaultValue = "1") int start,
+                                @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return jktjService.querySwRainTJ(stcd, time, type, interval, start, limit);
     }
 
     /**
@@ -83,8 +85,10 @@ public class JktjController {
     @ResponseBody
     public Result querySwRainTJ2(@RequestParam(name = "stcd", defaultValue = "") String stcd,
                                  @RequestParam(name = "type", defaultValue = "") String type,
-                                 @RequestParam(name = "interval", defaultValue = "") String interval){
-        return jktjService.querySwRainTJ2(stcd, type, interval);
+                                 @RequestParam(name = "interval", defaultValue = "") String interval,
+                                 @RequestParam(name = "start", defaultValue = "1") int start,
+                                 @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return jktjService.querySwRainTJ2(stcd, type, interval, start, limit);
     }
 
     /**
@@ -106,11 +110,13 @@ public class JktjController {
                                @RequestParam(name = "interval", defaultValue = "") String interval,
                                @RequestParam(name = "filename", defaultValue = "") String filename,
                                HttpServletRequest request,
-                               HttpServletResponse response){
+                               HttpServletResponse response,
+                               @RequestParam(name = "start", defaultValue = "1") int start,
+                               @RequestParam(name = "limit", defaultValue = "1000") int limit){
         Result rs = new Result();
 
         try {
-            jktjService.exportSwRainTJ(stcd, time, type, interval, filename, response);
+            jktjService.exportSwRainTJ(stcd, time, type, interval, filename, response, start, limit);
         }
         catch (Exception e) {
             rs.setCode(Result.FAILURE);
